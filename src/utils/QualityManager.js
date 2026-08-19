@@ -11,19 +11,21 @@
 export const TIERS = {
   full: {
     name: 'full',
-    octaves: 4,
-    maxSteps: 64,
+    octaves: 3,
+    maxSteps: 48,
     bloom: true,
     composite: true,
     renderScale: 1.0
   },
   mid: {
+    // Mobile / mid GPUs: no post-processing at all (bloom is too costly on a
+    // phone). The shader carries its own rim glow, so the look holds up.
     name: 'mid',
-    octaves: 3,
-    maxSteps: 40,
-    bloom: true,
+    octaves: 2,
+    maxSteps: 30,
+    bloom: false,
     composite: false,
-    renderScale: 0.85
+    renderScale: 0.7
   },
   low: {
     name: 'low',
@@ -62,6 +64,17 @@ function getWebGLInfo() {
 
 export function detectQuality() {
   const info = getWebGLInfo();
+
+  // Manual override for testing / debugging, e.g. ?quality=full|mid|low.
+  const forced = new URLSearchParams(location.search).get('quality');
+  if (forced && TIERS[forced]) {
+    return {
+      tier: TIERS[forced],
+      info,
+      webglSupported: info.supported,
+      isMobile: /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent)
+    };
+  }
 
   if (!info.supported) {
     return { tier: TIERS.low, info, webglSupported: false };
