@@ -1,0 +1,66 @@
+/*
+  Non-critical styles. Imported from JS so the critical inline CSS in
+  index.html owns the first paint. Everything here is preloader + motion
+  state that only matters once JS is alive.
+*/
+
+/* ---------------------------------------------------------------- Preloader */
+.preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: var(--bg);
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+  padding: var(--space);
+  will-change: opacity;
+}
+
+.preloader.is-hidden {
+  pointer-events: none;
+}
+
+.preloader__inner {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.preloader__word {
+  font-size: 0.82rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+
+.preloader__count {
+  font-size: clamp(3.5rem, 14vw, 9rem);
+  font-weight: 400;
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------- Hero fade elements */
+/* JS staggers these on scroll (eyebrow first, CTA last). Start fully visible
+   so a no-JS / partial-JS session still reads perfectly. */
+[data-hero-fade] {
+  will-change: opacity, transform;
+}
+
+/* Lenis */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}

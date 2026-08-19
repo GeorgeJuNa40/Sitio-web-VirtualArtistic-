@@ -1,0 +1,20 @@
+{
+  "name": "virtualartistic-hero",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "VirtualArtistic — Hero section. Boutique de ingeniería digital y arquitectura web.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview --host"
+  },
+  "devDependencies": {
+    "vite": "^5.4.10"
+  },
+  "dependencies": {
+    "three": "^0.169.0",
+    "gsap": "^3.12.5",
+    "lenis": "^1.1.18"
+  }
+}
