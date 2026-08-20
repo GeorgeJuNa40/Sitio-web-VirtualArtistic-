@@ -136,7 +136,7 @@ export class HeroScene {
           tDiffuse: { value: null },
           uTime: { value: 0 },
           uResolution: { value: new THREE.Vector2(1, 1) },
-          uAberration: { value: 0.022 },
+          uAberration: { value: 0.0 },
           uGrain: { value: 0.03 }
         },
         vertexShader:

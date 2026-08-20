@@ -49,7 +49,7 @@ void main() {
   // Warm-dark backdrop with a soft pool of light behind the mark, so the
   // brand's black shapes read as a silhouette against the glow.
   float pool = smoothstep(1.7, 0.0, length(rel));
-  vec3 bg = vec3(0.012, 0.012, 0.015) + vec3(0.09, 0.06, 0.025) * pool * 0.7;
+  vec3 bg = vec3(0.012, 0.012, 0.015) + vec3(0.055, 0.045, 0.03) * pool * 0.6;
 
   vec3 col = bg;
 
@@ -58,20 +58,13 @@ void main() {
     float mask = tex.a;
     vec3 base = tex.rgb;
 
-    // Keep the brand identity: orange -> rich gold, black -> glossy obsidian.
-    float warm = smoothstep(0.06, 0.35, base.r - base.b); // orange: high R, low B
-    float bright = dot(base, vec3(0.333));
-    vec3 gold = vec3(1.0, 0.74, 0.30);
-    vec3 obsidian = vec3(0.05, 0.05, 0.055);
-    vec3 mat = mix(base, gold, warm * 0.85);
-    float darkness = (1.0 - smoothstep(0.06, 0.3, bright)) * (1.0 - warm);
-    mat = mix(mat, obsidian, darkness);
-
-    // Moving foil highlight sweeps across everything, so the obsidian reads as
-    // glossy and the gold flashes like polished metal.
+    // Keep the mark's flat, designed colours (single gold, flat dark, grey
+    // border). Add only a faint gold-tinted sheen on the gold areas — never a
+    // white highlight, never a new hue.
+    float isGold = smoothstep(0.12, 0.30, base.r - base.b);
     float band = sin((vUv.x * 1.5 + vUv.y * 0.8 - uTime * 0.5) * 6.2831853);
-    band = pow(max(band, 0.0), 5.0);
-    mat += vec3(1.0, 0.93, 0.78) * band * 0.35;
+    band = pow(max(band, 0.0), 8.0);
+    vec3 mat = base + vec3(0.9, 0.66, 0.2) * band * isGold * 0.22;
 
     // Erode the mask with noise as it disperses.
     float a = mask;
