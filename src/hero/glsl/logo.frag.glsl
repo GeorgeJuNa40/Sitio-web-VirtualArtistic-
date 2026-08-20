@@ -49,7 +49,7 @@ void main() {
   // Warm-dark backdrop with a soft pool of light behind the mark, so the
   // brand's black shapes read as a silhouette against the glow.
   float pool = smoothstep(1.7, 0.0, length(rel));
-  vec3 bg = vec3(0.012, 0.012, 0.015) + vec3(0.055, 0.045, 0.03) * pool * 0.6;
+  vec3 bg = vec3(0.012, 0.012, 0.015) + vec3(0.03, 0.03, 0.033) * pool * 0.5;
 
   vec3 col = bg;
 
@@ -59,12 +59,8 @@ void main() {
     vec3 base = tex.rgb;
 
     // Keep the mark's flat, designed colours (single gold, flat dark, grey
-    // border). Add only a faint gold-tinted sheen on the gold areas — never a
-    // white highlight, never a new hue.
-    float isGold = smoothstep(0.12, 0.30, base.r - base.b);
-    float band = sin((vUv.x * 1.5 + vUv.y * 0.8 - uTime * 0.5) * 6.2831853);
-    band = pow(max(band, 0.0), 8.0);
-    vec3 mat = base + vec3(0.9, 0.66, 0.2) * band * isGold * 0.22;
+    // border). Render them exactly as designed — no recolour, no highlight.
+    vec3 mat = base;
 
     // Erode the mask with noise as it disperses.
     float a = mask;
@@ -78,7 +74,7 @@ void main() {
 
   // Vignette protects text contrast; global fade as the hero leaves.
   vec2 uvc = (frag - 0.5 * uResolution) / uResolution.y;
-  col *= smoothstep(1.4, 0.2, dot(uvc, uvc));
+  col *= smoothstep(1.9, 0.05, dot(uvc, uvc));
   col *= (1.0 - diss * 0.8);
 
   gl_FragColor = vec4(col, 1.0);
