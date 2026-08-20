@@ -136,7 +136,7 @@ export class HeroScene {
           tDiffuse: { value: null },
           uTime: { value: 0 },
           uResolution: { value: new THREE.Vector2(1, 1) },
-          uAberration: { value: 0.14 },
+          uAberration: { value: 0.045 },
           uGrain: { value: 0.03 }
         },
         vertexShader:
@@ -189,13 +189,12 @@ export class HeroScene {
     const portrait = h >= w;
     const minDim = Math.min(bw, bh);
     if (portrait) {
-      // Lower-right accent, clear of the white headline (white-on-gold would be
-      // low-contrast). y=0.26 sits it in the bottom third.
-      this.uniforms.uCenter.value.set(0.72, 0.26);
-      this.uniforms.uLogoHalf.value = minDim * 0.32;
+      // Lower-right accent, clear of the headline. y measured from the bottom.
+      this.uniforms.uCenter.value.set(0.7, 0.28);
+      this.uniforms.uLogoHalf.value = minDim * 0.36;
     } else {
-      this.uniforms.uCenter.value.set(0.7, 0.5);
-      this.uniforms.uLogoHalf.value = minDim * 0.42;
+      this.uniforms.uCenter.value.set(0.67, 0.5);
+      this.uniforms.uLogoHalf.value = minDim * 0.43;
     }
   }
 
