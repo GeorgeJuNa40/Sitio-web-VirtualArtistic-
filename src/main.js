@@ -31,7 +31,15 @@ function boot() {
   const pointer = new PointerControls({ isMobile: !!isMobile });
 
   try {
-    scene = new HeroScene({ canvas, tier, pointer, quality: info });
+    scene = new HeroScene({
+      canvas,
+      tier,
+      pointer,
+      quality: info,
+      // Fires once the logo is loaded and the first frames have painted, so the
+      // <h1> owned the first paint before the canvas fades in.
+      onReady: () => preloader.setSceneReady()
+    });
   } catch (err) {
     // WebGL init failed unexpectedly — degrade to the text-only hero.
     console.warn('[VirtualArtistic] Hero scene init failed, text-only fallback.', err);
@@ -45,22 +53,10 @@ function boot() {
 
   scene.start();
 
-  let frames = 0;
-  let revealed = false;
-
   function loop(time) {
     if (scene && scene._disposed) return;
     scroll.raf(time);
     scene.frame();
-
-    // Reveal only after the first frames actually rendered — protects LCP and
-    // guarantees the <h1> owned the first paint before the canvas appears.
-    if (!revealed && ++frames >= 2) {
-      revealed = true;
-      scene.reveal();
-      preloader.setSceneReady();
-    }
-
     requestAnimationFrame(loop);
   }
 

@@ -5,33 +5,38 @@ import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 
 import vertSrc from './glsl/core.vert.glsl?raw';
-import coreFragSrc from './glsl/core.frag.glsl?raw';
-import lowFragSrc from './glsl/low.frag.glsl?raw';
+import logoFragSrc from './glsl/logo.frag.glsl?raw';
 import compositeFragSrc from './glsl/composite.frag.glsl?raw';
 import noiseSrc from './glsl/simplexNoise.glsl?raw';
 
 /**
- * Owns the WebGL renderer, the fullscreen raymarch quad, post-processing and
- * the render loop. Built for a strict 16.6ms budget and clean teardown.
+ * "Sello vivo" hero: the brand mark on a full-screen quad, re-lit as gold metal
+ * by logo.frag — foil sweep, cursor parallax, slow spin, scroll dissolve. Far
+ * cheaper than raymarching, so 60fps holds on every tier.
  */
 export class HeroScene {
-  constructor({ canvas, tier, pointer, quality }) {
+  constructor({ canvas, tier, pointer, quality, onReady }) {
     this.canvas = canvas;
     this.tier = tier;
     this.pointer = pointer;
     this.qualityInfo = quality;
+    this.onReady = onReady || (() => {});
 
     this.scrollProgress = 0;
     this._running = false;
     this._visible = true;
     this._contextLost = false;
     this._disposed = false;
+    this._textureReady = false;
+    this._revealed = false;
+    this._frames = 0;
 
     this.clock = new THREE.Clock();
 
     this._initRenderer();
     this._initScene();
     this._initPost();
+    this._loadLogo();
     this._bindEvents();
     this.resize();
   }
@@ -39,13 +44,12 @@ export class HeroScene {
   _initRenderer() {
     this.renderer = new THREE.WebGLRenderer({
       canvas: this.canvas,
-      antialias: false, // raymarch edges are soft; MSAA would waste budget
+      antialias: false,
       alpha: false,
       powerPreference: 'high-performance',
       stencil: false,
       depth: false
     });
-    // DPR capped at 2 to protect mobile GPUs, then scaled down per tier.
     this._dpr = Math.min(window.devicePixelRatio || 1, 2) * this.tier.renderScale;
     this.renderer.setPixelRatio(this._dpr);
     this.renderer.setClearColor(0x050506, 1);
@@ -58,31 +62,20 @@ export class HeroScene {
     const geometry = new THREE.PlaneGeometry(2, 2);
 
     this.uniforms = {
+      uLogo: { value: null },
       uTime: { value: 0 },
       uResolution: { value: new THREE.Vector2(1, 1) },
       uMouse: { value: new THREE.Vector2(0, 0) },
       uMouseVelocity: { value: 0 },
       uScrollProgress: { value: 0 },
-      uPixelRatio: { value: this._dpr }
+      uCenter: { value: new THREE.Vector2(0.66, 0.5) },
+      uLogoHalf: { value: 300 }
     };
 
-    const isLow = this.tier.name === 'low';
-
-    let fragment;
-    if (isLow) {
-      fragment = lowFragSrc;
-    } else {
-      // Compose: precision-safe noise + compile-time quality defines + body.
-      const defines = `#define OCTAVES ${this.tier.octaves}\n#define MAX_STEPS ${this.tier.maxSteps}\n`;
-      // Insert noise + defines right after the uniforms/varyings preamble by
-      // placing them before the first function. Simplest robust approach:
-      // prepend defines, then noise, then the core body — but the core body's
-      // `precision`/uniforms must come first. So we splice at a marker line.
-      fragment = coreFragSrc.replace(
-        '// snoise(vec3) is prepended at build time (simplexNoise.glsl).',
-        `${defines}\n${noiseSrc}`
-      );
-    }
+    const fragment = logoFragSrc.replace(
+      '// snoise(vec3) prepended at build time.',
+      noiseSrc
+    );
 
     this.material = new THREE.ShaderMaterial({
       vertexShader: vertSrc,
@@ -90,8 +83,6 @@ export class HeroScene {
       uniforms: this.uniforms,
       depthTest: false,
       depthWrite: false,
-      // GLSL1 across all tiers: the shaders avoid ES 3.0-only builtins, so a
-      // single source path runs identically on WebGL1 and WebGL2.
       glslVersion: THREE.GLSL1
     });
 
@@ -100,18 +91,42 @@ export class HeroScene {
     this.scene.add(this.mesh);
   }
 
+  _loadLogo() {
+    // Preferred URL: a global set by the artifact preview (inlined data URI);
+    // otherwise the public asset resolved against the app base.
+    const url =
+      (typeof window !== 'undefined' && window.__LOGO_URL__) ||
+      (import.meta.env.BASE_URL || '/') + 'logo.png';
+
+    const loader = new THREE.TextureLoader();
+    loader.load(
+      url,
+      (tex) => {
+        tex.colorSpace = THREE.SRGBColorSpace;
+        tex.minFilter = THREE.LinearMipmapLinearFilter;
+        tex.magFilter = THREE.LinearFilter;
+        tex.generateMipmaps = true;
+        tex.anisotropy = this.renderer.capabilities.getMaxAnisotropy();
+        this.uniforms.uLogo.value = tex;
+        this._logoAspect = tex.image.width / tex.image.height;
+        this._textureReady = true;
+      },
+      undefined,
+      () => {
+        // Logo missing: reveal anyway so nothing hangs; the backdrop still paints.
+        this._textureReady = true;
+      }
+    );
+  }
+
   _initPost() {
     this.composer = new EffectComposer(this.renderer);
     this.composer.addPass(new RenderPass(this.scene, this.camera));
 
     if (this.tier.bloom) {
-      // High threshold, low strength — the rim glows, nothing blows out.
-      this.bloom = new UnrealBloomPass(
-        new THREE.Vector2(1, 1),
-        0.5, // strength
-        0.7, // radius
-        0.82 // threshold
-      );
+      // High threshold, gentle strength: only the brightest foil highlights
+      // bloom, so the mark stays crisp rather than hazy.
+      this.bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.22, 0.45, 0.82);
       this.composer.addPass(this.bloom);
     }
 
@@ -121,8 +136,8 @@ export class HeroScene {
           tDiffuse: { value: null },
           uTime: { value: 0 },
           uResolution: { value: new THREE.Vector2(1, 1) },
-          uAberration: { value: 1.4 },
-          uGrain: { value: 0.04 }
+          uAberration: { value: 0.14 },
+          uGrain: { value: 0.03 }
         },
         vertexShader:
           'varying vec2 vUv;\nvoid main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}',
@@ -131,7 +146,6 @@ export class HeroScene {
       this.composer.addPass(this.compositePass);
     }
 
-    // Whether we route through the composer at all.
     this._usePost = this.tier.bloom || this.tier.composite;
   }
 
@@ -139,7 +153,6 @@ export class HeroScene {
     this._onResize = () => this.resize();
     this._onVisibility = () => {
       this._visible = document.visibilityState === 'visible';
-      // Reset the clock delta so returning to the tab doesn't jump the noise.
       if (this._visible) this.clock.getDelta();
     };
     this._onContextLost = (e) => {
@@ -164,14 +177,26 @@ export class HeroScene {
     this.renderer.setSize(w, h, false);
     if (this.composer) this.composer.setSize(w, h);
 
-    // Buffer resolution in device pixels for the raymarcher / grain.
     const bw = w * this._dpr;
     const bh = h * this._dpr;
     this.uniforms.uResolution.value.set(bw, bh);
-    if (this.compositePass) {
-      this.compositePass.uniforms.uResolution.value.set(bw, bh);
-    }
+    if (this.compositePass) this.compositePass.uniforms.uResolution.value.set(bw, bh);
     if (this.bloom) this.bloom.setSize(w, h);
+
+    // Responsive composition: mark to the right on landscape, upper-right and
+    // smaller on portrait, so the left-aligned headline keeps a dark column.
+    // Note: uCenter is in plane UV where y=0 is the BOTTOM of the screen.
+    const portrait = h >= w;
+    const minDim = Math.min(bw, bh);
+    if (portrait) {
+      // Lower-right accent, clear of the white headline (white-on-gold would be
+      // low-contrast). y=0.26 sits it in the bottom third.
+      this.uniforms.uCenter.value.set(0.72, 0.26);
+      this.uniforms.uLogoHalf.value = minDim * 0.32;
+    } else {
+      this.uniforms.uCenter.value.set(0.7, 0.5);
+      this.uniforms.uLogoHalf.value = minDim * 0.42;
+    }
   }
 
   setScrollProgress(p) {
@@ -184,10 +209,8 @@ export class HeroScene {
     this.clock.getDelta();
   }
 
-  // Called from the shared rAF loop in main.js with the high-res timestamp.
   frame() {
     if (!this._running || this._disposed) return;
-    // Pause rendering entirely when hidden or context is gone.
     if (!this._visible || this._contextLost) return;
 
     const dt = Math.min(this.clock.getDelta(), 0.05);
@@ -199,21 +222,17 @@ export class HeroScene {
     this.uniforms.uMouse.value.set(this.pointer.mouse.x, this.pointer.mouse.y);
     this.uniforms.uMouseVelocity.value = this.pointer.velocity;
     this.uniforms.uScrollProgress.value = this.scrollProgress;
+    if (this.compositePass) this.compositePass.uniforms.uTime.value = elapsed;
 
-    if (this.compositePass) {
-      this.compositePass.uniforms.uTime.value = elapsed;
+    if (this._usePost) this.composer.render(dt);
+    else this.renderer.render(this.scene, this.camera);
+
+    // Reveal only once the logo is loaded and a couple of frames have painted.
+    if (!this._revealed && this._textureReady && ++this._frames >= 2) {
+      this._revealed = true;
+      this.canvas.style.opacity = '1';
+      this.onReady();
     }
-
-    if (this._usePost) {
-      this.composer.render(dt);
-    } else {
-      this.renderer.render(this.scene, this.camera);
-    }
-  }
-
-  reveal() {
-    // Fade the canvas element in only after the first successful frames.
-    this.canvas.style.opacity = '1';
   }
 
   dispose() {
@@ -227,8 +246,9 @@ export class HeroScene {
 
     this.mesh.geometry.dispose();
     this.material.dispose();
+    if (this.uniforms.uLogo.value) this.uniforms.uLogo.value.dispose();
 
-    if (this.bloom) this.bloom.dispose && this.bloom.dispose();
+    if (this.bloom && this.bloom.dispose) this.bloom.dispose();
     if (this.composer) {
       this.composer.passes.forEach((p) => p.dispose && p.dispose());
       this.composer.renderTarget1 && this.composer.renderTarget1.dispose();
