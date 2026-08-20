@@ -5,6 +5,7 @@ import { Preloader } from './core/Preloader.js';
 import { Scroll } from './core/Scroll.js';
 import { PointerControls } from './hero/PointerControls.js';
 import { HeroScene } from './hero/HeroScene.js';
+import { PointerWater } from './core/PointerWater.js';
 
 /**
  * Orchestrator. Wires the modules together and owns the single rAF loop that
@@ -16,6 +17,10 @@ import { HeroScene } from './hero/HeroScene.js';
 function boot() {
   const preloader = new Preloader();
   preloader.start();
+
+  // Site-wide water pointer effect — independent of the hero, so it works on
+  // every section and even when the hero degrades to text-only.
+  new PointerWater();
 
   const { tier, info, webglSupported, isMobile } = detectQuality();
 
