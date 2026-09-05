@@ -50,10 +50,25 @@
         overflow-x: hidden;
       }
 
-      /* Tall section that gives the scroll something to scrub through. */
+      /* Tall section that gives the scroll something to scrub through. The
+         extra length makes the scrub slow and cinematic. */
       .hero {
         position: relative;
-        height: 240vh;
+        height: 360vh;
+      }
+
+      /* White halo so dark text stays legible when the logo's colours pass
+         behind it; invisible over the white stage. */
+      .brand,
+      .meta,
+      .eyebrow,
+      .hero__title,
+      .hero__lede,
+      .scroll-hint {
+        text-shadow:
+          0 0 12px rgba(246, 245, 243, 0.96),
+          0 0 5px rgba(246, 245, 243, 0.96),
+          0 1px 2px rgba(246, 245, 243, 0.9);
       }
 
       /* Pinned viewport: the animation + text stay put while the page scrolls,
@@ -87,17 +102,17 @@
         background:
           linear-gradient(
             to right,
-            rgba(246, 245, 243, 0.92) 0%,
-            rgba(246, 245, 243, 0.6) 30%,
-            rgba(246, 245, 243, 0.05) 55%,
-            transparent 72%
+            rgba(246, 245, 243, 0.97) 0%,
+            rgba(246, 245, 243, 0.82) 26%,
+            rgba(246, 245, 243, 0.3) 48%,
+            transparent 68%
           ),
           linear-gradient(
             to bottom,
-            rgba(246, 245, 243, 0.7) 0%,
-            transparent 20%,
-            transparent 74%,
-            rgba(246, 245, 243, 0.75) 100%
+            rgba(246, 245, 243, 0.8) 0%,
+            transparent 22%,
+            transparent 72%,
+            rgba(246, 245, 243, 0.82) 100%
           );
       }
 
@@ -144,20 +159,32 @@
       }
 
       .eyebrow {
-        display: inline-block;
-        font-size: 0.74rem;
-        letter-spacing: 0.28em;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.55rem;
+        font-size: 0.76rem;
+        letter-spacing: 0.22em;
         text-transform: uppercase;
-        color: var(--gold);
+        font-weight: 700;
+        color: var(--ink);
         margin-bottom: clamp(1.1rem, 2.4vw, 1.8rem);
+      }
+
+      /* Gold marker so the eyebrow reads even over busy frames. */
+      .eyebrow::before {
+        content: '';
+        width: 1.6rem;
+        height: 2px;
+        background: var(--gold);
+        flex: none;
       }
 
       /* Both lines: identical size and weight. The parallelism is the message. */
       .hero__title {
-        font-weight: 500;
-        font-size: clamp(1.5rem, 3.8vw, 2.9rem);
-        line-height: 1.14;
-        letter-spacing: -0.015em;
+        font-weight: 700;
+        font-size: clamp(1.6rem, 4vw, 3rem);
+        line-height: 1.12;
+        letter-spacing: -0.02em;
         color: var(--ink);
         text-wrap: balance;
       }
@@ -168,9 +195,10 @@
 
       .hero__lede {
         margin-top: clamp(1.4rem, 3vw, 2.2rem);
-        max-width: 46ch;
+        max-width: 42ch;
         font-size: clamp(1rem, 1.4vw, 1.15rem);
-        color: var(--ink-dim);
+        font-weight: 500;
+        color: var(--ink);
         line-height: 1.6;
       }
 
@@ -302,6 +330,45 @@
         color: var(--ink-dim);
         font-size: 0.98rem;
         line-height: 1.6;
+      }
+
+      /* ---- Mobile: tidy the layout so it isn't crowded over the animation. */
+      @media (max-width: 760px), (orientation: portrait) and (max-width: 900px) {
+        .hero__content {
+          padding: 1.15rem;
+          gap: 1rem;
+        }
+        .meta {
+          display: none;
+        }
+        .brand {
+          font-size: 0.78rem;
+        }
+        /* Headline sits in the upper area; the mark is drawn lower on portrait. */
+        .hero__center {
+          align-self: start;
+          margin-top: clamp(3vh, 6vh, 8vh);
+          max-width: 100%;
+        }
+        .hero__title {
+          font-size: clamp(1.7rem, 8.5vw, 2.6rem);
+        }
+        .hero__lede {
+          max-width: 34ch;
+          font-size: 0.98rem;
+        }
+        .hero__bottom {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 1rem;
+        }
+        .scroll-hint {
+          display: none;
+        }
+        .cta-group {
+          width: 100%;
+          gap: 0.75rem 1.25rem;
+        }
       }
 
       @media (prefers-reduced-motion: reduce) {

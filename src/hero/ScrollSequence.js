@@ -5,7 +5,7 @@
  * cursor / gyro parallax keeps it alive at rest.
  */
 export class ScrollSequence {
-  constructor({ canvas, pointer, frameCount = 84, onReady, onProgress } = {}) {
+  constructor({ canvas, pointer, frameCount = 100, onReady, onProgress } = {}) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
     this.pointer = pointer;
@@ -14,6 +14,7 @@ export class ScrollSequence {
     this.onLoadProgress = onProgress || (() => {});
 
     this.progress = 0;
+    this.display = 0; // smoothed progress → cinematic, not 1:1 jumpy
     this.frames = [];
     this.loaded = 0;
     this._ready = false;
@@ -85,7 +86,7 @@ export class ScrollSequence {
   _draw() {
     const idx = Math.min(
       this.count - 1,
-      Math.max(0, Math.round(this.progress * (this.count - 1)))
+      Math.max(0, Math.round(this.display * (this.count - 1)))
     );
     const img = this.frames[idx];
     if (!img || !img.complete || !img.naturalWidth) return;
@@ -95,27 +96,46 @@ export class ScrollSequence {
     const ch = this.canvas.height;
     ctx.clearRect(0, 0, cw, ch);
 
-    // Cover-fit with a slight overscan so the parallax shift never shows edges.
-    const over = 1.06;
-    const scale = Math.max(cw / img.naturalWidth, ch / img.naturalHeight) * over;
-    const dw = img.naturalWidth * scale;
-    const dh = img.naturalHeight * scale;
+    const iw = img.naturalWidth;
+    const ih = img.naturalHeight;
+    const portrait = this._portrait();
+
+    // Landscape: cover the viewport. Portrait: fit by width and zoom modestly so
+    // the whole mark shows (not cropped huge), and sit it lower so the headline
+    // owns the upper area.
+    const over = 1.04;
+    const scale = portrait
+      ? (cw / iw) * 1.55
+      : Math.max(cw / iw, ch / ih) * over;
+    const dw = iw * scale;
+    const dh = ih * scale;
 
     let px = 0;
     let py = 0;
     if (this.pointer) {
       this.pointer.update();
-      px = this.pointer.mouse.x * (dw - cw) * 0.12;
-      py = -this.pointer.mouse.y * (dh - ch) * 0.12;
+      px = this.pointer.mouse.x * (dw - cw) * 0.1;
+      py = -this.pointer.mouse.y * (dh - ch) * 0.1;
     }
-    const dx = (cw - dw) / 2 + px;
-    const dy = (ch - dh) / 2 + py;
+    // Right bias on landscape (clear the text column); vertical bias down on
+    // portrait (clear the headline above it).
+    const biasX = portrait ? 0 : cw * 0.08;
+    const biasY = portrait ? ch * 0.16 : 0;
+    const dx = (cw - dw) / 2 + biasX + px;
+    const dy = (ch - dh) / 2 + biasY + py;
     ctx.drawImage(img, dx, dy, dw, dh);
+  }
+
+  _portrait() {
+    return this.h >= this.w;
   }
 
   // Called from the shared rAF loop.
   frame() {
     if (!this._ready || !this._visible) return;
+    // Ease the drawn progress toward the scroll target — the cinematic feel.
+    const d = this.progress - this.display;
+    this.display += d * (Math.abs(d) > 0.0005 ? 0.09 : 1);
     this._draw();
   }
 

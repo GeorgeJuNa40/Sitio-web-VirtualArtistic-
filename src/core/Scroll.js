@@ -13,6 +13,9 @@ export class Scroll {
   constructor({ onProgress } = {}) {
     this.onProgress = onProgress || (() => {});
     this.progress = 0;
+    // The scroll-driven text fade stays off until the intro reveal finishes,
+    // so the two animations never fight over the same properties.
+    this.fadeEnabled = false;
     this.hero = document.getElementById('hero');
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -57,7 +60,13 @@ export class Scroll {
     this._applyFade(p);
   }
 
+  enableFade() {
+    this.fadeEnabled = true;
+    this._update();
+  }
+
   _applyFade(p) {
+    if (!this.fadeEnabled) return;
     const n = this.fadeEls.length;
     if (!n) return;
     // Text clears early (first ~30% of the scrub) so it is gone before the
