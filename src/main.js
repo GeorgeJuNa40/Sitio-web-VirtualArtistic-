@@ -1,74 +1,52 @@
 import './styles/main.css';
 
-import { detectQuality } from './utils/QualityManager.js';
 import { Preloader } from './core/Preloader.js';
 import { Scroll } from './core/Scroll.js';
 import { PointerControls } from './hero/PointerControls.js';
-import { HeroScene } from './hero/HeroScene.js';
-import { PointerWater } from './core/PointerWater.js';
+import { ScrollSequence } from './hero/ScrollSequence.js';
 
 /**
- * Orchestrator. Wires the modules together and owns the single rAF loop that
- * drives both smooth-scroll and the render — one loop, one budget.
+ * Orchestrator. The hero is a scroll-scrubbed image sequence (the logo
+ * animation) on a premium-white stage: scroll drives which frame is drawn,
+ * cursor / gyro add a subtle parallax. One rAF loop for scroll + draw.
  *
- * The reading layer (semantic HTML) is already painted by the time this runs.
- * Everything here only enhances; if any of it fails, the text still reads.
+ * The semantic HTML is already painted before this runs; everything here only
+ * enhances, and the copy still reads if it fails.
  */
 function boot() {
   const preloader = new Preloader();
   preloader.start();
 
-  // Site-wide water pointer effect — independent of the hero, so it works on
-  // every section and even when the hero degrades to text-only.
-  new PointerWater();
-
-  const { tier, info, webglSupported, isMobile } = detectQuality();
-
   const canvas = document.getElementById('scene');
+  const isMobile = /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent);
 
-  // No WebGL at all: leave the pure black/white reading layer, resolve loader.
-  if (!webglSupported || !canvas) {
+  if (!canvas || !canvas.getContext) {
     preloader.setSceneReady();
     return;
   }
 
-  let scene = null;
-  const pointer = new PointerControls({ isMobile: !!isMobile });
+  const pointer = new PointerControls({ isMobile });
 
-  try {
-    scene = new HeroScene({
-      canvas,
-      tier,
-      pointer,
-      quality: info,
-      // Fires once the logo is loaded and the first frames have painted, so the
-      // <h1> owned the first paint before the canvas fades in.
-      onReady: () => preloader.setSceneReady()
-    });
-  } catch (err) {
-    // WebGL init failed unexpectedly — degrade to the text-only hero.
-    console.warn('[VirtualArtistic] Hero scene init failed, text-only fallback.', err);
-    preloader.setSceneReady();
-    return;
-  }
-
-  const scroll = new Scroll({
-    onProgress: (p) => scene.setScrollProgress(p)
+  const sequence = new ScrollSequence({
+    canvas,
+    pointer,
+    frameCount: 84,
+    onReady: () => preloader.setSceneReady(),
+    onProgress: () => {}
   });
 
-  scene.start();
+  const scroll = new Scroll({
+    onProgress: (p) => sequence.setProgress(p)
+  });
 
   function loop(time) {
-    if (scene && scene._disposed) return;
     scroll.raf(time);
-    scene.frame();
+    sequence.frame();
     requestAnimationFrame(loop);
   }
-
   requestAnimationFrame(loop);
 
-  // Expose for debugging / teardown in embedded contexts.
-  window.__virtualArtistic = { scene, scroll, pointer, tier: tier.name };
+  window.__virtualArtistic = { sequence, scroll, pointer };
 }
 
 if (document.readyState === 'loading') {
