@@ -105,7 +105,7 @@ export class ScrollSequence {
     // owns the upper area.
     const over = 1.04;
     const scale = portrait
-      ? (cw / iw) * 1.55
+      ? (cw / iw) * 1.62
       : Math.max(cw / iw, ch / ih) * over;
     const dw = iw * scale;
     const dh = ih * scale;
@@ -120,7 +120,7 @@ export class ScrollSequence {
     // Right bias on landscape (clear the text column); vertical bias down on
     // portrait (clear the headline above it).
     const biasX = portrait ? 0 : cw * 0.08;
-    const biasY = portrait ? ch * 0.16 : 0;
+    const biasY = portrait ? ch * 0.1 : 0;
     const dx = (cw - dw) / 2 + biasX + px;
     const dy = (ch - dh) / 2 + biasY + py;
     ctx.drawImage(img, dx, dy, dw, dh);
