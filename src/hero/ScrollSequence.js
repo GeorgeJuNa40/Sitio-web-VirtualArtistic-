@@ -100,13 +100,11 @@ export class ScrollSequence {
     const ih = img.naturalHeight;
     const portrait = this._portrait();
 
-    // Landscape: cover the viewport. Portrait: fit by width and zoom modestly so
-    // the whole mark shows (not cropped huge), and sit it lower so the headline
-    // owns the upper area.
+    // Cover the whole viewport in both orientations — the animation is full
+    // bleed, so there is never a letterboxed band or visible "box". On portrait
+    // the tall crop reads as a full-screen vertical composition.
     const over = 1.04;
-    const scale = portrait
-      ? (cw / iw) * 1.62
-      : Math.max(cw / iw, ch / ih) * over;
+    const scale = Math.max(cw / iw, ch / ih) * over;
     const dw = iw * scale;
     const dh = ih * scale;
 
@@ -117,12 +115,10 @@ export class ScrollSequence {
       px = this.pointer.mouse.x * (dw - cw) * 0.1;
       py = -this.pointer.mouse.y * (dh - ch) * 0.1;
     }
-    // Right bias on landscape (clear the text column); vertical bias down on
-    // portrait (clear the headline above it).
+    // Right bias clears the headline column on landscape; portrait stays centred.
     const biasX = portrait ? 0 : cw * 0.08;
-    const biasY = portrait ? ch * 0.1 : 0;
     const dx = (cw - dw) / 2 + biasX + px;
-    const dy = (ch - dh) / 2 + biasY + py;
+    const dy = (ch - dh) / 2 + py;
     ctx.drawImage(img, dx, dy, dw, dh);
   }
 
