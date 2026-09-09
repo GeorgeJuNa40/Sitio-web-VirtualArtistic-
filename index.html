@@ -339,11 +339,17 @@
         .brand {
           font-size: 0.78rem;
         }
-        /* Headline sits in the upper area; the mark is drawn lower on portrait. */
+        /* Headline sits in the upper area over a frosted panel so the copy is
+           always crisp; the mark is drawn lower on portrait, untouched. */
         .hero__center {
           align-self: start;
-          margin-top: clamp(3vh, 6vh, 8vh);
+          margin-top: clamp(2vh, 5vh, 7vh);
           max-width: 100%;
+          background: rgba(253, 253, 253, 0.62);
+          backdrop-filter: blur(7px);
+          -webkit-backdrop-filter: blur(7px);
+          border-radius: 18px;
+          padding: 1.1rem 1.15rem 1.3rem;
         }
         .hero__title {
           font-size: clamp(1.7rem, 8.5vw, 2.6rem);
@@ -407,13 +413,13 @@
               <p class="meta">Ingeniería digital · Arquitectura web</p>
             </div>
 
-            <div class="hero__center">
-              <span class="eyebrow" data-hero-fade="1">Boutique de ingeniería digital</span>
-              <h1 class="hero__title" data-hero-fade="2">
+            <div class="hero__center" data-hero-fade="2">
+              <span class="eyebrow">Boutique de ingeniería digital</span>
+              <h1 class="hero__title">
                 <span class="line">Diseñamos lo esencial.</span
                 ><span class="line">Construimos lo duradero.</span>
               </h1>
-              <p class="hero__lede" data-hero-fade="3">
+              <p class="hero__lede">
                 Arquitectura web de precisión para marcas que entienden el valor
                 del detalle. Sistemas rápidos, sobrios y hechos para permanecer.
               </p>

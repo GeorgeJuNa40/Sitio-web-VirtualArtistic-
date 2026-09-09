@@ -33,14 +33,30 @@ export class ScrollSequence {
   }
 
   _urls() {
-    if (typeof window !== 'undefined' && Array.isArray(window.__SEQ__) && window.__SEQ__.length) {
+    // Phones get a portrait, padded frame set (smaller, contained mark with
+    // white margins) so it fills the screen with no visible "box"; desktop gets
+    // the wide set.
+    const mobile =
+      window.matchMedia('(max-width: 760px)').matches ||
+      window.innerHeight > window.innerWidth;
+
+    if (mobile && Array.isArray(window.__SEQ_M__) && window.__SEQ_M__.length) {
+      this.count = window.__SEQ_M__.length;
+      return window.__SEQ_M__;
+    }
+    if (!mobile && Array.isArray(window.__SEQ__) && window.__SEQ__.length) {
+      this.count = window.__SEQ__.length;
+      return window.__SEQ__;
+    }
+    if (Array.isArray(window.__SEQ__) && window.__SEQ__.length) {
       this.count = window.__SEQ__.length;
       return window.__SEQ__;
     }
     const base = (import.meta.env && import.meta.env.BASE_URL) || '/';
+    const folder = mobile ? 'seq-m' : 'seq';
     const urls = [];
     for (let i = 0; i < this.count; i++) {
-      urls.push(`${base}seq/f_${String(i).padStart(3, '0')}.webp`);
+      urls.push(`${base}${folder}/f_${String(i).padStart(3, '0')}.webp`);
     }
     return urls;
   }
