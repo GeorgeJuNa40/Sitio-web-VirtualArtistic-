@@ -13,9 +13,6 @@ export class Scroll {
   constructor({ onProgress } = {}) {
     this.onProgress = onProgress || (() => {});
     this.progress = 0;
-    // The scroll-driven text fade stays off until the intro reveal finishes,
-    // so the two animations never fight over the same properties.
-    this.fadeEnabled = false;
     this.hero = document.getElementById('hero');
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -50,30 +47,22 @@ export class Scroll {
 
   _update() {
     if (!this.hero) return;
-    // Progress over the pinned hero's full scroll range (it is taller than the
-    // viewport), so 0 = top and 1 = the moment the sticky panel releases. This
-    // is what scrubs the animation frame sequence.
-    const range = this.hero.offsetHeight - window.innerHeight || window.innerHeight;
-    const p = Math.min(Math.max(window.scrollY / range, 0), 1);
+    const h = this.hero.offsetHeight || window.innerHeight;
+    // 0 at top of hero, 1 once scrolled one hero-height down.
+    const p = Math.min(Math.max(window.scrollY / h, 0), 1);
     this.progress = p;
     this.onProgress(p);
     this._applyFade(p);
   }
 
-  enableFade() {
-    this.fadeEnabled = true;
-    this._update();
-  }
-
   _applyFade(p) {
-    if (!this.fadeEnabled) return;
     const n = this.fadeEls.length;
     if (!n) return;
-    // Text clears early (first ~30% of the scrub) so it is gone before the
-    // animation's climax; staggered eyebrow-first, CTA-last.
+    // Staggered windows: earlier elements finish fading before later ones start.
+    // Total travel compressed into the first ~85% of the hero exit.
     this.fadeEls.forEach((el, i) => {
-      const start = (i / n) * 0.12;
-      const end = start + 0.16;
+      const start = (i / n) * 0.55;
+      const end = start + 0.4;
       const local = gsap.utils.clamp(0, 1, (p - start) / (end - start));
       const eased = gsap.parseEase('power2.out')(local);
       el.style.opacity = String(1 - eased);

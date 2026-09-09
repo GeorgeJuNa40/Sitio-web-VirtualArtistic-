@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#fdfdfd" />
+    <meta name="theme-color" content="#050506" />
     <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
     <title>VirtualArtistic — Boutique de ingeniería digital y arquitectura web</title>
     <meta
@@ -12,20 +12,17 @@
     />
 
     <!--
-      CRITICAL CSS (inlined). The <h1> paints on the first frame — before the
-      canvas, fonts or JS resolve. Light "premium white" theme so the page
-      matches the logo animation. Protects LCP, forbids CLS.
+      CRITICAL CSS (inlined).
+      Guarantees the <h1> paints on the first frame — before the canvas,
+      the fonts or any JavaScript resolve. Protects LCP and forbids CLS.
     -->
     <style>
       :root {
-        /* Exactly the animation's white (#fdfdfd) so the canvas blends into the
-           page seamlessly — no visible "box" around the frames. */
-        --bg: #fdfdfd;
-        --ink: #17160f;
-        --ink-dim: #565349;
-        --ink-faint: #8f8b80;
-        --gold: #b8860b;
-        --line: rgba(23, 22, 15, 0.16);
+        --ink: #f4f4f2;
+        --ink-dim: #9a9a97;
+        --ink-faint: #5c5c5a;
+        --bg: #050506;
+        --line: rgba(244, 244, 242, 0.14);
         --space: clamp(1.25rem, 4vw, 3rem);
         --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial,
           sans-serif;
@@ -52,69 +49,59 @@
         overflow-x: hidden;
       }
 
-      /* Tall section that gives the scroll something to scrub through. The
-         extra length makes the scrub slow and cinematic. */
-      .hero {
-        position: relative;
-        height: 360vh;
-      }
-
-      /* White halo so dark text stays legible when the logo's colours pass
-         behind it; invisible over the white stage. */
-      .brand,
-      .meta,
-      .eyebrow,
-      .hero__title,
-      .hero__lede,
-      .scroll-hint {
-        text-shadow:
-          0 0 14px rgba(253, 253, 253, 0.98),
-          0 0 6px rgba(253, 253, 253, 0.98),
-          0 1px 2px rgba(253, 253, 253, 0.95);
-      }
-
-      /* Pinned viewport: the animation + text stay put while the page scrolls,
-         and the scroll position drives which frame is drawn. */
-      .hero__sticky {
-        position: sticky;
-        top: 0;
-        height: 100svh;
-        overflow: hidden;
-      }
-
+      /* The canvas lives strictly behind everything. It fades in after the
+         first paint; its absence must never disturb the reading layer. */
       .hero__canvas {
-        position: absolute;
+        position: fixed;
         inset: 0;
         z-index: 0;
         display: block;
         width: 100%;
         height: 100%;
         opacity: 0;
-        transition: opacity 1s ease;
+        transition: opacity 1.2s ease;
         pointer-events: none;
       }
 
-      /* Light scrim: keeps the dark headline legible over busy frames without
-         hiding the white animation. */
+      /* Darkening layer + vignette that guarantees text contrast over every
+         animation state of the core. Pure CSS, zero runtime cost. */
       .hero__scrim {
-        position: absolute;
+        position: fixed;
         inset: 0;
         z-index: 1;
         pointer-events: none;
-        /* Only a soft left wash behind the headline column — it never reaches
-           the mark, so the logo keeps its full colour. */
-        background: linear-gradient(
-          to right,
-          rgba(253, 253, 253, 0.92) 0%,
-          rgba(253, 253, 253, 0.55) 24%,
-          transparent 44%
-        );
+        background:
+          linear-gradient(
+            to right,
+            rgba(5, 5, 6, 0.82) 0%,
+            rgba(5, 5, 6, 0.55) 32%,
+            rgba(5, 5, 6, 0.12) 58%,
+            transparent 78%
+          ),
+          radial-gradient(
+            120% 90% at 60% 42%,
+            transparent 0%,
+            transparent 34%,
+            rgba(5, 5, 6, 0.4) 74%,
+            rgba(5, 5, 6, 0.82) 100%
+          ),
+          linear-gradient(
+            to bottom,
+            rgba(5, 5, 6, 0.45) 0%,
+            transparent 24%,
+            transparent 66%,
+            rgba(5, 5, 6, 0.88) 100%
+          );
       }
 
-      .hero__content {
-        position: absolute;
-        inset: 0;
+      .shell {
+        position: relative;
         z-index: 2;
+      }
+
+      .hero {
+        position: relative;
+        min-height: 100svh;
         display: grid;
         grid-template-rows: auto 1fr auto;
         padding: var(--space);
@@ -132,7 +119,7 @@
         font-size: 0.82rem;
         letter-spacing: 0.24em;
         text-transform: uppercase;
-        font-weight: 600;
+        font-weight: 500;
         color: var(--ink);
       }
 
@@ -154,32 +141,20 @@
       }
 
       .eyebrow {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.55rem;
-        font-size: 0.76rem;
-        letter-spacing: 0.22em;
+        display: inline-block;
+        font-size: 0.74rem;
+        letter-spacing: 0.28em;
         text-transform: uppercase;
-        font-weight: 700;
-        color: var(--ink);
+        color: var(--ink-dim);
         margin-bottom: clamp(1.1rem, 2.4vw, 1.8rem);
-      }
-
-      /* Gold marker so the eyebrow reads even over busy frames. */
-      .eyebrow::before {
-        content: '';
-        width: 1.6rem;
-        height: 2px;
-        background: var(--gold);
-        flex: none;
       }
 
       /* Both lines: identical size and weight. The parallelism is the message. */
       .hero__title {
-        font-weight: 700;
-        font-size: clamp(1.6rem, 4vw, 3rem);
-        line-height: 1.12;
-        letter-spacing: -0.02em;
+        font-weight: 400;
+        font-size: clamp(1.5rem, 3.8vw, 2.9rem);
+        line-height: 1.14;
+        letter-spacing: -0.015em;
         color: var(--ink);
         text-wrap: balance;
       }
@@ -190,10 +165,9 @@
 
       .hero__lede {
         margin-top: clamp(1.4rem, 3vw, 2.2rem);
-        max-width: 42ch;
+        max-width: 46ch;
         font-size: clamp(1rem, 1.4vw, 1.15rem);
-        font-weight: 500;
-        color: var(--ink);
+        color: var(--ink-dim);
         line-height: 1.6;
       }
 
@@ -219,21 +193,18 @@
         font-size: 0.9rem;
         letter-spacing: 0.02em;
         text-decoration: none;
-        color: #fff;
-        background: var(--ink);
+        color: var(--ink);
         padding: 0.85rem 1.6rem;
-        border: 1px solid var(--ink);
+        border: 1px solid var(--line);
         border-radius: 999px;
-        transition: background 0.4s ease, color 0.4s ease, border-color 0.4s ease;
+        transition: border-color 0.4s ease, color 0.4s ease, background 0.4s ease;
       }
 
       .cta:hover {
-        background: var(--gold);
-        border-color: var(--gold);
+        border-color: rgba(244, 244, 242, 0.5);
       }
 
       .cta--ghost {
-        background: transparent;
         border-color: transparent;
         padding-left: 0.4rem;
         padding-right: 0.4rem;
@@ -242,7 +213,6 @@
 
       .cta--ghost:hover {
         color: var(--ink);
-        background: transparent;
         border-color: transparent;
       }
 
@@ -286,6 +256,8 @@
         }
       }
 
+      /* Second panel so scroll actually has somewhere to travel and the hero
+         can leave the viewport, driving uScrollProgress 0 -> 1. */
       .after {
         position: relative;
         z-index: 2;
@@ -299,7 +271,7 @@
       }
 
       .after__title {
-        font-weight: 500;
+        font-weight: 400;
         font-size: clamp(1.8rem, 4vw, 3rem);
         letter-spacing: -0.02em;
         max-width: 20ch;
@@ -316,8 +288,8 @@
         font-size: 0.78rem;
         letter-spacing: 0.2em;
         text-transform: uppercase;
-        color: var(--gold);
-        font-weight: 600;
+        color: var(--ink-dim);
+        font-weight: 500;
         margin-bottom: 0.8rem;
       }
 
@@ -325,67 +297,6 @@
         color: var(--ink-dim);
         font-size: 0.98rem;
         line-height: 1.6;
-      }
-
-      /* ---- Mobile: tidy the layout so it isn't crowded over the animation. */
-      @media (max-width: 760px), (orientation: portrait) and (max-width: 900px) {
-        .hero__content {
-          padding: 1.15rem;
-          gap: 1rem;
-        }
-        .meta {
-          display: none;
-        }
-        .brand {
-          font-size: 0.78rem;
-        }
-        /* Headline sits in the upper area over a frosted panel so the copy is
-           always crisp; the mark is drawn lower on portrait, untouched. */
-        .hero__center {
-          align-self: start;
-          margin-top: clamp(2vh, 5vh, 7vh);
-          max-width: 100%;
-          background: rgba(253, 253, 253, 0.62);
-          backdrop-filter: blur(7px);
-          -webkit-backdrop-filter: blur(7px);
-          border-radius: 18px;
-          padding: 1.1rem 1.15rem 1.3rem;
-        }
-        .hero__title {
-          font-size: clamp(1.7rem, 8.5vw, 2.6rem);
-        }
-        .hero__lede {
-          max-width: 34ch;
-          font-size: 0.98rem;
-        }
-        .hero__bottom {
-          flex-direction: column;
-          align-items: flex-start;
-          gap: 1rem;
-        }
-        .scroll-hint {
-          display: none;
-        }
-        .cta-group {
-          width: 100%;
-          gap: 0.75rem 1.25rem;
-        }
-        /* No wash on mobile — the logo shows at full colour; the headline sits
-           above it and reads via its own halo. */
-        .hero__scrim {
-          display: none;
-        }
-        /* Stack the lower section vertically so nothing gets cut off. */
-        .after {
-          padding: clamp(2.5rem, 8vh, 5rem) 1.15rem;
-        }
-        .after__grid {
-          grid-template-columns: 1fr;
-          gap: 1.75rem;
-        }
-        .after__title {
-          font-size: clamp(1.7rem, 8vw, 2.4rem);
-        }
       }
 
       @media (prefers-reduced-motion: reduce) {
@@ -399,46 +310,43 @@
     </style>
   </head>
   <body>
+    <!-- Reading layer. Fully present and legible with zero JavaScript. -->
+    <canvas id="scene" class="hero__canvas" aria-hidden="true"></canvas>
+    <div class="hero__scrim" aria-hidden="true"></div>
+
     <div class="shell">
       <header class="hero" id="hero">
-        <div class="hero__sticky">
-          <canvas id="scene" class="hero__canvas" aria-hidden="true"></canvas>
-          <div class="hero__scrim" aria-hidden="true"></div>
+        <div class="hero__top" data-hero-fade="0">
+          <p class="brand">
+            VirtualArtistic <span class="brand__mark">/ estudio</span>
+          </p>
+          <p class="meta">Ingeniería digital · Arquitectura web</p>
+        </div>
 
-          <div class="hero__content">
-            <div class="hero__top" data-hero-fade="0">
-              <p class="brand">
-                VirtualArtistic <span class="brand__mark">/ estudio</span>
-              </p>
-              <p class="meta">Ingeniería digital · Arquitectura web</p>
-            </div>
+        <div class="hero__center">
+          <span class="eyebrow" data-hero-fade="1">Boutique de ingeniería digital</span>
+          <h1 class="hero__title" data-hero-fade="2">
+            <span class="line">Diseñamos lo esencial.</span
+            ><span class="line">Construimos lo duradero.</span>
+          </h1>
+          <p class="hero__lede" data-hero-fade="3">
+            Arquitectura web de precisión para marcas que entienden el valor del
+            detalle. Sistemas rápidos, sobrios y hechos para permanecer.
+          </p>
+        </div>
 
-            <div class="hero__center" data-hero-fade="2">
-              <span class="eyebrow">Boutique de ingeniería digital</span>
-              <h1 class="hero__title">
-                <span class="line">Diseñamos lo esencial.</span
-                ><span class="line">Construimos lo duradero.</span>
-              </h1>
-              <p class="hero__lede">
-                Arquitectura web de precisión para marcas que entienden el valor
-                del detalle. Sistemas rápidos, sobrios y hechos para permanecer.
-              </p>
-            </div>
-
-            <div class="hero__bottom" data-hero-fade="4">
-              <div class="cta-group">
-                <a class="cta" href="#contacto">
-                  Iniciar un proyecto
-                  <span class="cta__arrow" aria-hidden="true">→</span>
-                </a>
-                <a class="cta cta--ghost" href="#enfoque">Ver enfoque</a>
-              </div>
-              <span class="scroll-hint" aria-hidden="true">
-                <span class="scroll-hint__line"></span>
-                Desplázate
-              </span>
-            </div>
+        <div class="hero__bottom" data-hero-fade="4">
+          <div class="cta-group">
+            <a class="cta" href="#contacto">
+              Iniciar un proyecto
+              <span class="cta__arrow" aria-hidden="true">→</span>
+            </a>
+            <a class="cta cta--ghost" href="#enfoque">Ver enfoque</a>
           </div>
+          <span class="scroll-hint" aria-hidden="true">
+            <span class="scroll-hint__line"></span>
+            Desplázate
+          </span>
         </div>
       </header>
 
@@ -470,6 +378,7 @@
       </section>
     </div>
 
+    <!-- Numeric preloader. Injected/controlled by JS; harmless if JS is blocked. -->
     <div class="preloader" id="preloader" aria-hidden="true">
       <div class="preloader__inner">
         <span class="preloader__word">VirtualArtistic</span>
