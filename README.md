@@ -1,86 +1,68 @@
 # VirtualArtistic — Hero
 
 Sección Hero de **VirtualArtistic**, boutique de ingeniería digital y arquitectura web.
-Concepto **"Sello vivo"**: el logo de la marca renderizado como pieza metálica dorada
-sobre fondo oscuro, reactivo al cursor/giroscopio con inercia, que se desintegra en
-partículas al hacer scroll.
 
-Registro silencioso, nunca estridente. El color entra solo por el logo/shader.
+Concepto: **animación del logo controlada por el scroll** ("scroll-scrubbing" tipo Apple)
+sobre un fondo **blanco premium**. Al hacer scroll, el logo se arma → se arremolina →
+estalla en fragmentos → se rearma. En móvil la animación llena toda la pantalla
+(full-bleed). Un **destello dorado** sigue al cursor y el texto entra con un fade sutil.
 
 ## Stack
 
-- **Vanilla JS (ES6+) + Vite** — sin frameworks de UI, sin librerías de componentes.
-- **Three.js** — renderer y post-procesado.
-- **GLSL custom** — shader del logo (re-iluminado metálico, destello foil, disolución).
-- **GSAP** — timelines del preloader y del fade escalonado.
+- **Vanilla JS (ES6+) + Vite** — sin frameworks de UI.
+- **GSAP** — timeline de entrada del texto y utilidades de easing.
 - **Lenis** — smooth scroll.
+- Sin dependencias 3D: el hero es una **secuencia de imágenes** dibujada en un canvas 2D.
 
-## El logo (importante)
-
-El símbolo se carga como textura desde **`public/logo.png`**. El shader toma su
-**luminancia** y la remapea a un degradado de oro metálico: los negros de tu logo se
-vuelven bronce oscuro (siguen leyéndose sobre fondo negro) y los dorados se vuelven oro
-brillante, con un destello que lo barre.
-
-**Para usar tu logo real:** reemplaza `public/logo.png` por tu símbolo en **PNG con
-fondo transparente** (cuadrado, ≥1000px). No hace falta tocar código. Actualmente hay un
-**placeholder** (un remolino dorado que aproxima la marca) hasta que subas el definitivo.
-Un SVG vectorial daría aún mejor borde; si lo tienes, lo integramos.
-
-## Requisitos
+## Cómo correrlo
 
 ```bash
 npm install
-npm run dev      # desarrollo
-npm run build    # build de producción → dist/
-npm run preview  # sirve el build (usar HTTPS/host real para probar giroscopio en móvil)
+npm run dev      # desarrollo (abre el enlace local, p. ej. http://localhost:5173)
+npm run build    # producción → /dist
+npm run preview  # sirve el build
 ```
 
-> El giroscopio (móvil) requiere **HTTPS** y, en iOS, permiso explícito por gesto del
-> usuario. El logo se carga vía `fetch`/textura: sírvelo por **http(s)**, no `file://`
-> (una imagen `file://` mancha la textura WebGL por CORS).
+## Cómo funciona la animación
+
+La animación es una **secuencia de 100 fotogramas** (`public/seq/f_000.webp` … `f_099.webp`),
+extraídos del video del logo. `src/hero/ScrollSequence.js` los precarga y dibuja en un
+`<canvas>` el fotograma que corresponde al progreso de scroll (con suavizado para que se
+sienta cinematográfico). El `<canvas>` cubre toda la pantalla (cover), por eso no se ve
+ninguna "caja".
+
+**Para cambiar la animación:** reemplaza los `.webp` de `public/seq/` por tu propia
+secuencia (mismo nombre `f_000.webp`…). Puedes generarlos desde un video con ffmpeg:
+
+```bash
+ffmpeg -i tu_video.mp4 -vf "fps=10,scale=1200:-1" frame_%03d.png
+# luego convierte cada PNG a WEBP y renómbralos f_000.webp, f_001.webp, ...
+```
 
 ## Estructura
 
 ```
-index.html                     # HTML semántico + CSS crítico inline (el <h1> pinta primero)
-public/logo.png                # el símbolo de la marca (reemplazable)
+index.html                    · HTML + CSS crítico inline (tema blanco premium)
+public/seq/f_000..f_099.webp  · fotogramas de la animación del logo
+public/logo.png               · logo (referencia; la animación ya lo contiene)
 public/favicon.svg
 src/
-  main.js                      # orquestador + único rAF loop (scroll + render comparten budget)
-  styles/main.css              # CSS no crítico (preloader, estados de fade)
-  utils/QualityManager.js      # detección de capacidad → tier full | mid | low
-  core/
-    Preloader.js               # contador numérico, salida con fade lento (GSAP)
-    Scroll.js                  # Lenis + uScrollProgress + fade escalonado
+  main.js                     · orquestador + rAF loop (scroll + dibujo)
   hero/
-    HeroScene.js               # renderer, quad, textura del logo, post-procesado, ciclo de vida
-    PointerControls.js         # cursor (lerp 0.08) · giroscopio · drift autónomo
-    glsl/
-      core.vert.glsl           # pass-through fullscreen
-      logo.frag.glsl           # re-iluminado metálico + destello + parallax + disolución
-      composite.frag.glsl      # aberración cromática + film grain + vignette (1 pase)
-      simplexNoise.glsl        # ruido Simplex 3D (Ashima / Gustavson, MIT)
+    ScrollSequence.js         · precarga y dibuja los fotogramas según el scroll
+    PointerControls.js        · cursor (lerp) · giroscopio · drift autónomo
+  core/
+    Scroll.js                 · smooth scroll (Lenis) + fade del texto
+    PointerFlash.js           · destello dorado que sigue al cursor (todo el sitio)
+    Preloader.js              · contador de carga
+  styles/main.css             · CSS no crítico (preloader, estados)
 ```
 
-## Decisiones de rendimiento (frame budget 16.6 ms)
+## Notas de diseño
 
-- **DPR capado a 2×** y escalado adicional por tier (`renderScale`).
-- **Tres niveles de calidad**: `full` (bloom + pase compuesto), `mid` (móvil, sin post),
-  `low` (sin post, escala reducida). El shader es un quad texturizado — mucho más barato
-  que raymarching, así que 60fps se sostiene en todos los tiers.
-- **WebGL2 por defecto, fallback a WebGL1** (el shader evita builtins de ES 3.0).
-- **Un solo rAF** comparte presupuesto entre Lenis y el renderer.
-- **Pausa del render** en `visibilitychange`; manejo de **pérdida de contexto**; `dispose()`
-  de geometría, materiales, textura y render targets al desmontar.
-- Override de calidad para pruebas: `?quality=full|mid|low`.
-
-## Criterios de validación cubiertos
-
-- El `<h1>` pinta en el primer frame (CSS crítico inline); el canvas hace fade-in después.
-- Prueba de desnudez: sin canvas, en blanco y negro, el copy se sostiene por su paralelismo.
-- Contraste protegido en todo estado por scrim/vignette (CSS) + vignette (shader); el logo
-  se compone a un lado para dejar la columna de texto sobre negro.
-- Sin saltos de layout (CLS = 0); el texto se lee con JavaScript bloqueado.
-- Las dos líneas del `<h1>` comparten tamaño y peso; el salto de línea es de markup.
-```
+- El `<h1>` pinta en el primer frame (CSS crítico inline) → LCP protegido, CLS = 0.
+- El texto entra con un fade escalonado y luego se desvanece con el scroll.
+- El fondo de la página usa exactamente el blanco de la animación (`#fdfdfd`) para que el
+  canvas se funda con la página sin bordes visibles.
+- La secuencia de imágenes evita el "jank" de hacer *seek* en un video H.264 y no depende
+  del códec del navegador.

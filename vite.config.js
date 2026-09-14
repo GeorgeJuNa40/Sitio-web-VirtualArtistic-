@@ -11,7 +11,6 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          three: ['three'],
           vendor: ['gsap', 'lenis']
         }
       }
