@@ -1,7 +1,8 @@
 import { defineConfig } from 'vite';
 
-// Shaders are imported via Vite's native `?raw` suffix and composed in JS,
-// so no GLSL plugin is required. This keeps the toolchain dependency-free.
+// Dependency-free toolchain: the hero is a scroll-scrubbed image sequence drawn
+// on a 2D canvas, so there is no 3D/GLSL build step — only GSAP + Lenis are
+// bundled as vendor.
 export default defineConfig({
   root: '.',
   base: './',

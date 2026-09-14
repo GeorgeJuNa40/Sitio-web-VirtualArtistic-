@@ -31,6 +31,14 @@ extraídos del video del logo. `src/hero/ScrollSequence.js` los precarga y dibuj
 sienta cinematográfico). El `<canvas>` cubre toda la pantalla (cover), por eso no se ve
 ninguna "caja".
 
+> **Secuencia vertical (pendiente de exportar).** En móvil (viewport vertical) la
+> animación usa hoy los fotogramas horizontales recortados a pantalla completa
+> (cover). Para una composición vertical dedicada, exporta un set aparte en
+> `public/seq-portrait/` (mismo naming `f_000.webp`…) y actívalo en
+> `ScrollSequence.js` (`_urls()`) según la **relación de aspecto del viewport**,
+> no por user-agent. Mientras no exista esa carpeta, el móvil sigue con los
+> fotogramas horizontales full-bleed.
+
 **Para cambiar la animación:** reemplaza los `.webp` de `public/seq/` por tu propia
 secuencia (mismo nombre `f_000.webp`…). Puedes generarlos desde un video con ffmpeg:
 

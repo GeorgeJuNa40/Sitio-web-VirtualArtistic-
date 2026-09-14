@@ -1,19 +1,19 @@
 import { gsap } from 'gsap';
 
 /**
- * Numeric preloader. A counter climbs to 100, then the panel fades slowly.
- * No spinner, no logo animation — the wait should feel cinematic, not technical.
- *
- * The count is not tied to real asset bytes (there are none to download — the
- * core is pure shader). It is paced to feel deliberate and resolves as soon as
- * the scene reports ready, whichever is later.
+ * Numeric preloader. The counter tracks the REAL decode progress of the hero's
+ * opening frames (reported by ScrollSequence) and settles to 100 the moment the
+ * scene signals it is ready to reveal; then the panel fades. No spinner, no
+ * logo animation — the wait should feel deliberate, not technical.
  */
 export class Preloader {
   constructor() {
     this.el = document.getElementById('preloader');
     this.countEl = document.getElementById('preloader-count');
-    this.value = 0;
+    this.value = 0; // highest real percentage reported so far
+    this._display = 0; // eased value actually painted
     this._sceneReady = false;
+    this._finished = false;
     this._onDone = null;
   }
 
@@ -24,34 +24,47 @@ export class Preloader {
       if (onDone) onDone();
       return;
     }
+    this._render(0);
+  }
 
-    const state = { v: 0 };
-    // Ease toward 100 over a deliberate window; snap to done when scene ready.
-    this._tween = gsap.to(state, {
-      v: 100,
-      duration: 2.4,
-      ease: 'power2.inOut',
-      onUpdate: () => {
-        this.value = Math.floor(state.v);
-        this.countEl.textContent = String(this.value).padStart(2, '0');
-      },
-      onComplete: () => this._maybeFinish()
+  // Real load progress (0..1) of the frames gating the reveal. Held below 100
+  // until the scene is actually ready, so the counter never lies.
+  setProgress(p) {
+    if (!this.countEl || this._finished) return;
+    const target = Math.min(99, Math.round(Math.max(0, Math.min(1, p)) * 100));
+    if (target <= this.value) return; // monotonic — never step backwards
+    this.value = target;
+    gsap.to(this, {
+      _display: target,
+      duration: 0.3,
+      ease: 'power1.out',
+      onUpdate: () => this._render(this._display)
     });
   }
 
   setSceneReady() {
     this._sceneReady = true;
-    this._maybeFinish();
+    if (!this.el || !this.countEl) {
+      if (this._onDone) this._onDone();
+      return;
+    }
+    this.value = 100;
+    gsap.to(this, {
+      _display: 100,
+      duration: 0.35,
+      ease: 'power2.out',
+      onUpdate: () => this._render(this._display),
+      onComplete: () => this._exit()
+    });
   }
 
-  _maybeFinish() {
-    if (this._finished) return;
-    if (this.value < 100 || !this._sceneReady) return;
-    this._finished = true;
-    this._exit();
+  _render(v) {
+    this.countEl.textContent = String(Math.floor(v)).padStart(2, '0');
   }
 
   _exit() {
+    if (this._finished) return;
+    this._finished = true;
     this.el.classList.add('is-hidden');
     gsap.to(this.el, {
       opacity: 0,

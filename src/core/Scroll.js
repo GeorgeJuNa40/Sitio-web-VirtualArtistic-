@@ -4,10 +4,10 @@ import { gsap } from 'gsap';
 /**
  * Smooth scroll (Lenis) + hero scroll progress + the staggered fade-out.
  *
- * uScrollProgress goes 0 -> 1 as the hero header leaves the viewport. The
- * text fades on a stagger — eyebrow/top first, CTA last — so the whole exit
- * reads as one choreography with the core's disintegration, not as independent
- * layers switching off.
+ * progress goes 0 -> 1 as the pinned hero scrolls through its range (it also
+ * scrubs the frame sequence). The text fades on a stagger — top/eyebrow first,
+ * CTA block last — so the whole exit reads as one choreography with the logo
+ * animation, not as independent layers switching off.
  */
 export class Scroll {
   constructor({ onProgress } = {}) {
@@ -19,6 +19,8 @@ export class Scroll {
     this.hero = document.getElementById('hero');
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // Reduced motion: keep the text fully legible — never fade it out on scroll.
+    this.reduced = reduced;
 
     this.lenis = new Lenis({
       duration: 1.1,
@@ -66,7 +68,7 @@ export class Scroll {
   }
 
   _applyFade(p) {
-    if (!this.fadeEnabled) return;
+    if (!this.fadeEnabled || this.reduced) return;
     const n = this.fadeEls.length;
     if (!n) return;
     // Text clears early (first ~30% of the scrub) so it is gone before the

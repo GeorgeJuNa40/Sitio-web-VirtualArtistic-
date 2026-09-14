@@ -45,11 +45,10 @@
 }
 
 /* ------------------------------------------------------- Hero fade elements */
-/* JS staggers these on scroll (eyebrow first, CTA last). Start fully visible
-   so a no-JS / partial-JS session still reads perfectly. */
-[data-hero-fade] {
-  will-change: opacity, transform;
-}
+/* JS staggers these on entrance and on scroll (top/eyebrow first, CTA block
+   last). They start fully visible so a no-JS / partial-JS session still reads
+   perfectly. `will-change` is applied by JS only while a piece is animating and
+   cleared when it finishes — never left on permanently. */
 
 /* Lenis */
 html.lenis,

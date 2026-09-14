@@ -34,6 +34,8 @@ function boot() {
     canvas,
     pointer,
     frameCount: 100,
+    // Real decode progress of the opening frames drives the preloader counter.
+    onProgress: (p) => preloader.setProgress(p),
     onReady: () => {
       preloader.setSceneReady();
       playIntro(scroll);
@@ -56,7 +58,9 @@ function boot() {
 
 /**
  * Staggered entrance for the hero text — reveals as the preloader clears, then
- * hands the fade back to the scroll controller.
+ * hands the fade back to the scroll controller. Entry order follows the
+ * data-hero-fade index: top → eyebrow → H1 → lede → CTA block (scarcity rides
+ * inside the CTA block, so it enters and later fades on the same beat).
  */
 function playIntro(scroll) {
   const els = Array.from(document.querySelectorAll('[data-hero-fade]')).sort(
@@ -66,16 +70,30 @@ function playIntro(scroll) {
     scroll.enableFade();
     return;
   }
-  gsap.set(els, { opacity: 0, y: 28, filter: 'blur(6px)' });
+
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduced) {
+    // No entrance animation — show the text immediately, fully legible.
+    gsap.set(els, { opacity: 1, y: 0, filter: 'none' });
+    scroll.enableFade(); // no-op fade under reduced motion, keeps text visible
+    return;
+  }
+
+  // will-change only while these elements actually animate; cleared on complete.
+  els.forEach((el) => (el.style.willChange = 'opacity, transform, filter'));
+  gsap.set(els, { opacity: 0, y: 32, filter: 'blur(6px)' });
   gsap.to(els, {
     opacity: 1,
     y: 0,
     filter: 'blur(0px)',
     duration: 1.0,
     ease: 'power3.out',
-    stagger: 0.13,
+    stagger: 0.16,
     delay: 0.7,
-    onComplete: () => scroll.enableFade()
+    onComplete: () => {
+      els.forEach((el) => (el.style.willChange = 'auto'));
+      scroll.enableFade();
+    }
   });
 }
 
