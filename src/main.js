@@ -34,7 +34,8 @@ function boot() {
     canvas,
     pointer,
     frameCount: 100,
-    // Real decode progress of the opening frames drives the preloader counter.
+    // Progressive load progress is still reported; the preloader shows a
+    // deliberate time-paced 0→100 count-up and only exits once the scene is ready.
     onProgress: (p) => preloader.setProgress(p),
     onReady: () => {
       preloader.setSceneReady();
