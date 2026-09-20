@@ -1,22 +1,23 @@
-import { gsap } from 'gsap';
-
 /**
- * Numeric preloader. A counter climbs deliberately from 00 to 100, then the
- * panel fades — the wait reads as intent, not as a technical spinner. The climb
- * is paced over a fixed window so it is always visible as a count-up (even when
- * the frames are cached/inlined and decode instantly); it holds at 99 until the
- * scene reports ready, so it never shows 100 before the hero can actually
- * appear.
+ * Numeric preloader. A counter climbs from 00 to 100 while the logo fills in
+ * and a gold bar tracks the same value; then the panel fades. The climb is
+ * driven by a fixed step per animation frame (not a time-based tween), so a
+ * heavy decode that briefly stalls the main thread can only pause the count —
+ * never fast-forward it — which keeps the 0→100 gesture visible even when every
+ * asset is inlined and decodes in one burst. It holds at 99 until the scene
+ * reports ready, so it never shows 100 before the hero can appear.
  */
 export class Preloader {
   constructor() {
     this.el = document.getElementById('preloader');
     this.countEl = document.getElementById('preloader-count');
     this.value = 0;
+    this._display = 0;
     this._sceneReady = false;
-    this._paceDone = false;
     this._finished = false;
     this._onDone = null;
+    // ~100 units over ~2.2s at 60fps → a deliberate, always-visible count-up.
+    this._step = 100 / (2.2 * 60);
   }
 
   start(onDone) {
@@ -27,58 +28,54 @@ export class Preloader {
       return;
     }
     this._render(0);
+    this._raf = this._raf.bind(this);
+    requestAnimationFrame(this._raf);
+  }
 
-    // Deliberate count-up. Held at 99 until the scene is ready so 100 never
-    // lies; snaps to 100 and exits once both the climb and the scene are done.
-    const state = { v: 0 };
-    this._tween = gsap.to(state, {
-      v: 100,
-      duration: 2.4,
-      ease: 'power2.inOut',
-      onUpdate: () => {
-        const cap = this._sceneReady ? 100 : 99;
-        this.value = Math.min(cap, Math.floor(state.v));
-        this._render(this.value);
-      },
-      onComplete: () => {
-        this._paceDone = true;
-        this._maybeFinish();
-      }
-    });
+  _raf() {
+    if (this._finished) return;
+    const cap = this._sceneReady ? 100 : 99;
+    this._display = Math.min(cap, this._display + this._step);
+    this.value = Math.floor(this._display);
+    this._render(this.value);
+    if (this._display >= 100 && this._sceneReady) {
+      this.value = 100;
+      this._render(100);
+      this._exit();
+      return;
+    }
+    requestAnimationFrame(this._raf);
   }
 
   // The progressive loader still reports real frame progress, but the visible
-  // counter is time-paced for a clean count-up, so this is intentionally inert.
+  // counter is paced for a clean count-up, so this is intentionally inert.
   setProgress() {}
 
   setSceneReady() {
     this._sceneReady = true;
-    this._maybeFinish();
-  }
-
-  _maybeFinish() {
-    if (this._finished) return;
-    if (!this._paceDone || !this._sceneReady) return;
-    this._finished = true;
-    this.value = 100;
-    this._render(100);
-    this._exit();
   }
 
   _render(v) {
     this.countEl.textContent = String(v).padStart(2, '0');
+    // Drives the logo fill (clip-path) and the progress bar width.
+    if (this.el) this.el.style.setProperty('--fillpct', v + '%');
   }
 
   _exit() {
+    if (this._finished) return;
+    this._finished = true;
     this.el.classList.add('is-hidden');
-    gsap.to(this.el, {
-      opacity: 0,
-      duration: 1.1,
-      ease: 'power2.inOut',
-      onComplete: () => {
+    // Small pause on a full mark, then fade — lets the completed logo register.
+    setTimeout(() => {
+      this.el.style.transition = 'opacity 1s ease';
+      this.el.style.opacity = '0';
+      const done = () => {
         this.el.style.display = 'none';
         if (this._onDone) this._onDone();
-      }
-    });
+      };
+      this.el.addEventListener('transitionend', done, { once: true });
+      // Fallback in case the transition event is missed.
+      setTimeout(done, 1200);
+    }, 260);
   }
 }
