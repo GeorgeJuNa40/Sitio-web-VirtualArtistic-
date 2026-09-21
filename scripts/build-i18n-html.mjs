@@ -96,10 +96,10 @@ ${criticalCss}
           <div class="hero__content">
             <div class="hero__top" data-hero-fade="0">
               <p class="brand">
-                VirtualArtistic <span class="brand__mark">${esc(t.brandMark)}</span>
+                VirtualArtistic <span class="brand__mark" data-i18n="brandMark">${esc(t.brandMark)}</span>
               </p>
               <div class="hero__top-right">
-                <p class="meta">${esc(t.topMeta)}</p>
+                <p class="meta" data-i18n="topMeta">${esc(t.topMeta)}</p>
                 <nav class="lang" aria-label="${esc(t.langLabel)}">
                   <a class="${esCls}" href="/"${esCur} hreflang="es" lang="es">ES</a>
                   <span class="lang__sep" aria-hidden="true">·</span>
@@ -109,12 +109,12 @@ ${criticalCss}
             </div>
 
             <div class="hero__center">
-              <span class="eyebrow" data-hero-fade="1">${esc(t.eyebrow)}</span>
+              <span class="eyebrow" data-hero-fade="1" data-i18n="eyebrow">${esc(t.eyebrow)}</span>
               <h1 class="hero__title" data-hero-fade="2">
-                <span class="line"><span class="line__i">${esc(t.h1line1)}</span></span>
-                <span class="line"><span class="line__i">${esc(t.h1line2)}</span></span>
+                <span class="line"><span class="line__i" data-i18n="h1line1">${esc(t.h1line1)}</span></span>
+                <span class="line"><span class="line__i" data-i18n="h1line2">${esc(t.h1line2)}</span></span>
               </h1>
-              <p class="hero__lede" data-hero-fade="3">${esc(t.lede)}</p>
+              <p class="hero__lede" data-hero-fade="3" data-i18n="lede">${esc(t.lede)}</p>
             </div>
 
             <div class="hero__bottom">
@@ -122,18 +122,18 @@ ${criticalCss}
                 <div class="cta-stack" data-hero-fade="4">
                   <div class="cta-group">
                     <a class="cta" href="#contacto">
-                      ${esc(t.ctaPrimary)}
+                      <span data-i18n="ctaPrimary">${esc(t.ctaPrimary)}</span>
                       <span class="cta__arrow" aria-hidden="true">→</span>
                     </a>
-                    <a class="cta cta--ghost" href="#enfoque">${esc(t.ctaSecondary)}</a>
+                    <a class="cta cta--ghost" href="#enfoque" data-i18n="ctaSecondary">${esc(t.ctaSecondary)}</a>
                   </div>
-                  <p class="scarcity">${esc(t.scarcity)}</p>
+                  <p class="scarcity" data-i18n="scarcity">${esc(t.scarcity)}</p>
                 </div>
-                <p class="scope" data-hero-fade="5">${esc(t.scope)}</p>
+                <p class="scope" data-hero-fade="5" data-i18n="scope">${esc(t.scope)}</p>
               </div>
               <span class="scroll-hint" data-hero-fade="6" aria-hidden="true">
                 <span class="scroll-hint__line"></span>
-                ${esc(t.scrollHint)}
+                <span data-i18n="scrollHint">${esc(t.scrollHint)}</span>
               </span>
             </div>
           </div>
@@ -141,13 +141,13 @@ ${criticalCss}
       </header>
 
       <section class="after" id="enfoque">
-        <h2 class="after__title">${esc(t.after.title)}</h2>
+        <h2 class="after__title" data-i18n="after.title">${esc(t.after.title)}</h2>
         <div class="after__grid">
           ${t.after.cells
             .map(
-              (c) => `<div class="after__cell">
-            <h3>${esc(c.h)}</h3>
-            <p>${esc(c.p)}</p>
+              (c, i) => `<div class="after__cell">
+            <h3 data-i18n="after.cells.${i}.h">${esc(c.h)}</h3>
+            <p data-i18n="after.cells.${i}.p">${esc(c.p)}</p>
           </div>`
             )
             .join('\n          ')}

@@ -6,6 +6,9 @@
   --ink-dim: #565349;
   --ink-faint: #8f8b80;
   --gold: #b8860b;
+  /* Bright logo amber — decorative accents only (fails AA as small text on
+     white, so text keeps --gold). */
+  --amber: #e0a52a;
   --line: rgba(23, 22, 15, 0.16);
   --space: clamp(1.25rem, 4vw, 3rem);
   /* Body: geometric, legible. Fallback stack chosen to match Manrope's
@@ -237,7 +240,7 @@ body {
   content: '';
   width: 1.6rem;
   height: 2px;
-  background: var(--gold);
+  background: linear-gradient(90deg, var(--gold), var(--amber));
   flex: none;
 }
 
@@ -299,17 +302,19 @@ body {
 }
 
 .scarcity {
-  font-size: 0.75rem;
-  letter-spacing: 0.04em;
-  color: var(--ink-faint);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--ink-dim);
 }
 
 /* International scope — quiet monospace, states reach without loud words. */
 .scope {
   font-family: var(--mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.16em;
-  color: var(--ink-faint);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  color: var(--ink-dim);
 }
 
 .cta {
@@ -480,6 +485,7 @@ body {
   outline-offset: 2px;
 }
 
+/* Centered composition — reads as a considered statement, not left-loaded. */
 .after {
   position: relative;
   z-index: 2;
@@ -487,7 +493,9 @@ body {
   padding: clamp(3rem, 12vh, 9rem) var(--space);
   display: grid;
   align-content: center;
-  gap: 2rem;
+  justify-items: center;
+  text-align: center;
+  gap: clamp(2rem, 5vw, 3.25rem);
   border-top: 1px solid var(--line);
   background: var(--bg);
 }
@@ -497,29 +505,51 @@ body {
   font-weight: 500;
   font-size: clamp(1.8rem, 4vw, 3rem);
   letter-spacing: -0.02em;
-  max-width: 20ch;
+  max-width: 22ch;
+  margin: 0 auto;
+}
+
+/* Thin gold marker under the title — a touch of the logo's warmth. */
+.after__title::after {
+  content: '';
+  display: block;
+  width: 3.5rem;
+  height: 3px;
+  margin: 1.2rem auto 0;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--gold), var(--amber));
 }
 
 .after__grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: clamp(1.5rem, 4vw, 3rem);
-  max-width: 1100px;
+  gap: clamp(1.75rem, 4vw, 3rem);
+  max-width: 1080px;
+  width: 100%;
+  margin: 0 auto;
+  justify-items: center;
+}
+
+.after__cell {
+  max-width: 34ch;
+  padding-top: 1.15rem;
+  border-top: 2px solid var(--gold);
+  border-image: linear-gradient(90deg, var(--gold), var(--amber)) 1;
 }
 
 .after__cell h3 {
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--gold);
-  font-weight: 600;
+  font-weight: 700;
   margin-bottom: 0.8rem;
 }
 
 .after__cell p {
   color: var(--ink-dim);
-  font-size: 0.98rem;
-  line-height: 1.6;
+  font-size: 1rem;
+  line-height: 1.65;
 }
 
 /* ---- Mobile ------------------------------------------------------------- */
@@ -566,6 +596,17 @@ body {
   .cta-group {
     width: 100%;
     gap: 0.75rem 1.25rem;
+  }
+  /* Positioning lines stay readable on the phone — larger, bolder, darker. */
+  .scarcity {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .scope {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--ink-dim);
   }
   /* Not a box: a soft top veil that fully dissolves by ~60%, so the headline
      and lede stay legible while the logo's centre keeps its full colour. */

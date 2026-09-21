@@ -40,6 +40,9 @@
         --ink-dim: #565349;
         --ink-faint: #8f8b80;
         --gold: #b8860b;
+        /* Bright logo amber — decorative accents only (fails AA as small text on
+           white, so text keeps --gold). */
+        --amber: #e0a52a;
         --line: rgba(23, 22, 15, 0.16);
         --space: clamp(1.25rem, 4vw, 3rem);
         /* Body: geometric, legible. Fallback stack chosen to match Manrope's
@@ -271,7 +274,7 @@
         content: '';
         width: 1.6rem;
         height: 2px;
-        background: var(--gold);
+        background: linear-gradient(90deg, var(--gold), var(--amber));
         flex: none;
       }
       
@@ -333,17 +336,19 @@
       }
       
       .scarcity {
-        font-size: 0.75rem;
-        letter-spacing: 0.04em;
-        color: var(--ink-faint);
+        font-size: 0.82rem;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+        color: var(--ink-dim);
       }
       
       /* International scope — quiet monospace, states reach without loud words. */
       .scope {
         font-family: var(--mono);
-        font-size: 0.68rem;
-        letter-spacing: 0.16em;
-        color: var(--ink-faint);
+        font-size: 0.72rem;
+        font-weight: 500;
+        letter-spacing: 0.14em;
+        color: var(--ink-dim);
       }
       
       .cta {
@@ -514,6 +519,7 @@
         outline-offset: 2px;
       }
       
+      /* Centered composition — reads as a considered statement, not left-loaded. */
       .after {
         position: relative;
         z-index: 2;
@@ -521,7 +527,9 @@
         padding: clamp(3rem, 12vh, 9rem) var(--space);
         display: grid;
         align-content: center;
-        gap: 2rem;
+        justify-items: center;
+        text-align: center;
+        gap: clamp(2rem, 5vw, 3.25rem);
         border-top: 1px solid var(--line);
         background: var(--bg);
       }
@@ -531,29 +539,51 @@
         font-weight: 500;
         font-size: clamp(1.8rem, 4vw, 3rem);
         letter-spacing: -0.02em;
-        max-width: 20ch;
+        max-width: 22ch;
+        margin: 0 auto;
+      }
+      
+      /* Thin gold marker under the title — a touch of the logo's warmth. */
+      .after__title::after {
+        content: '';
+        display: block;
+        width: 3.5rem;
+        height: 3px;
+        margin: 1.2rem auto 0;
+        border-radius: 2px;
+        background: linear-gradient(90deg, var(--gold), var(--amber));
       }
       
       .after__grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: clamp(1.5rem, 4vw, 3rem);
-        max-width: 1100px;
+        gap: clamp(1.75rem, 4vw, 3rem);
+        max-width: 1080px;
+        width: 100%;
+        margin: 0 auto;
+        justify-items: center;
+      }
+      
+      .after__cell {
+        max-width: 34ch;
+        padding-top: 1.15rem;
+        border-top: 2px solid var(--gold);
+        border-image: linear-gradient(90deg, var(--gold), var(--amber)) 1;
       }
       
       .after__cell h3 {
-        font-size: 0.78rem;
+        font-size: 0.8rem;
         letter-spacing: 0.2em;
         text-transform: uppercase;
         color: var(--gold);
-        font-weight: 600;
+        font-weight: 700;
         margin-bottom: 0.8rem;
       }
       
       .after__cell p {
         color: var(--ink-dim);
-        font-size: 0.98rem;
-        line-height: 1.6;
+        font-size: 1rem;
+        line-height: 1.65;
       }
       
       /* ---- Mobile ------------------------------------------------------------- */
@@ -600,6 +630,17 @@
         .cta-group {
           width: 100%;
           gap: 0.75rem 1.25rem;
+        }
+        /* Positioning lines stay readable on the phone — larger, bolder, darker. */
+        .scarcity {
+          font-size: 0.95rem;
+          font-weight: 700;
+          color: var(--ink);
+        }
+        .scope {
+          font-size: 0.82rem;
+          font-weight: 600;
+          color: var(--ink-dim);
         }
         /* Not a box: a soft top veil that fully dissolves by ~60%, so the headline
            and lede stay legible while the logo's centre keeps its full colour. */
@@ -663,10 +704,10 @@
           <div class="hero__content">
             <div class="hero__top" data-hero-fade="0">
               <p class="brand">
-                VirtualArtistic <span class="brand__mark">/ studio</span>
+                VirtualArtistic <span class="brand__mark" data-i18n="brandMark">/ studio</span>
               </p>
               <div class="hero__top-right">
-                <p class="meta">Digital engineering · AI automation</p>
+                <p class="meta" data-i18n="topMeta">Digital engineering · AI automation</p>
                 <nav class="lang" aria-label="Language">
                   <a class="lang__link" href="/" hreflang="es" lang="es">ES</a>
                   <span class="lang__sep" aria-hidden="true">·</span>
@@ -676,12 +717,12 @@
             </div>
 
             <div class="hero__center">
-              <span class="eyebrow" data-hero-fade="1">Digital engineering boutique</span>
+              <span class="eyebrow" data-hero-fade="1" data-i18n="eyebrow">Digital engineering boutique</span>
               <h1 class="hero__title" data-hero-fade="2">
-                <span class="line"><span class="line__i">Design that commands authority.</span></span>
-                <span class="line"><span class="line__i">Systems that run themselves.</span></span>
+                <span class="line"><span class="line__i" data-i18n="h1line1">Design that commands authority.</span></span>
+                <span class="line"><span class="line__i" data-i18n="h1line2">Systems that run themselves.</span></span>
               </h1>
-              <p class="hero__lede" data-hero-fade="3">Immersive web architecture and AI agents, built for established businesses still running on outdated tools.</p>
+              <p class="hero__lede" data-hero-fade="3" data-i18n="lede">Immersive web architecture and AI agents, built for established businesses still running on outdated tools.</p>
             </div>
 
             <div class="hero__bottom">
@@ -689,18 +730,18 @@
                 <div class="cta-stack" data-hero-fade="4">
                   <div class="cta-group">
                     <a class="cta" href="#contacto">
-                      Request a project review
+                      <span data-i18n="ctaPrimary">Request a project review</span>
                       <span class="cta__arrow" aria-hidden="true">→</span>
                     </a>
-                    <a class="cta cta--ghost" href="#enfoque">Our approach</a>
+                    <a class="cta cta--ghost" href="#enfoque" data-i18n="ctaSecondary">Our approach</a>
                   </div>
-                  <p class="scarcity">We take on two new projects per quarter.</p>
+                  <p class="scarcity" data-i18n="scarcity">We take on two new projects each month.</p>
                 </div>
-                <p class="scope" data-hero-fade="5">Mexico · Latin America · United States · Europe</p>
+                <p class="scope" data-hero-fade="5" data-i18n="scope">Mexico · Latin America · United States · Europe</p>
               </div>
               <span class="scroll-hint" data-hero-fade="6" aria-hidden="true">
                 <span class="scroll-hint__line"></span>
-                Scroll
+                <span data-i18n="scrollHint">Scroll</span>
               </span>
             </div>
           </div>
@@ -708,19 +749,19 @@
       </header>
 
       <section class="after" id="enfoque">
-        <h2 class="after__title">Less surface. More structure.</h2>
+        <h2 class="after__title" data-i18n="after.title">Less surface. More structure.</h2>
         <div class="after__grid">
           <div class="after__cell">
-            <h3>01 — Architecture</h3>
-            <p>We define structure before form. Every technical decision answers an editorial intent.</p>
+            <h3 data-i18n="after.cells.0.h">01 — Architecture</h3>
+            <p data-i18n="after.cells.0.p">We define structure before form. Every technical decision answers an editorial intent.</p>
           </div>
           <div class="after__cell">
-            <h3>02 — Engineering</h3>
-            <p>Performance as a principle, not a final adjustment. 60 FPS and LCP under control from the first commit.</p>
+            <h3 data-i18n="after.cells.1.h">02 — Engineering</h3>
+            <p data-i18n="after.cells.1.p">Performance as a principle, not a final adjustment. 60 FPS and LCP under control from the first commit.</p>
           </div>
           <div class="after__cell">
-            <h3>03 — Permanence</h3>
-            <p>We build systems that age well: maintainable, restrained and legible for whoever comes next.</p>
+            <h3 data-i18n="after.cells.2.h">03 — Permanence</h3>
+            <p data-i18n="after.cells.2.p">We build systems that age well: maintainable, restrained and legible for whoever comes next.</p>
           </div>
         </div>
       </section>
