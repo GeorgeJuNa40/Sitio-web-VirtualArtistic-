@@ -1,0 +1,40 @@
+{
+  "lang": "en",
+  "dir": "ltr",
+  "ogLocale": "en_US",
+  "canonical": "/en/",
+  "route": "/en/",
+  "other": { "code": "es", "route": "/" },
+  "meta": {
+    "title": "VirtualArtistic — Digital engineering boutique",
+    "description": "Digital engineering boutique: immersive web architecture and AI agents for established businesses. Mexico, Latin America, the United States and Europe.",
+    "ogTitle": "VirtualArtistic — Digital engineering boutique",
+    "ogDescription": "Immersive web architecture and AI agents for businesses that want to scale with order."
+  },
+  "brandMark": "/ studio",
+  "topMeta": "Digital engineering · AI automation",
+  "langLabel": "Language",
+  "eyebrow": "Digital engineering boutique",
+  "h1line1": "Design that commands authority.",
+  "h1line2": "Systems that run themselves.",
+  "lede": "Immersive web architecture and AI agents, built for established businesses still running on outdated tools.",
+  "ctaPrimary": "Request a project review",
+  "ctaSecondary": "Our approach",
+  "scarcity": "We take on two new projects each month.",
+  "scrollHint": "Scroll",
+  "scope": "Mexico · Latin America · United States · Europe",
+  "marquee": "DIGITAL ENGINEERING · AI AUTOMATION · WEB ARCHITECTURE · GROWTH PARTNER · ",
+  "suggest": {
+    "text": "Este sitio está disponible en español.",
+    "cta": "Ver en español",
+    "close": "Close notice"
+  },
+  "after": {
+    "title": "Less surface. More structure.",
+    "cells": [
+      { "h": "01 — Structure", "p": "First we define how everything works, then how it looks. Every choice has a clear reason behind it." },
+      { "h": "02 — Speed", "p": "Your site opens fast and runs smoothly from day one. Being fast isn't a bonus — it's the base." },
+      { "h": "03 — Durability", "p": "We build things made to last: easy to maintain and to grow over time." }
+    ]
+  }
+}

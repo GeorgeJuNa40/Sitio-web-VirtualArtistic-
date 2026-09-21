@@ -1,0 +1,40 @@
+{
+  "lang": "es",
+  "dir": "ltr",
+  "ogLocale": "es_MX",
+  "canonical": "/",
+  "route": "/",
+  "other": { "code": "en", "route": "/en/" },
+  "meta": {
+    "title": "VirtualArtistic — Boutique de ingeniería digital",
+    "description": "Boutique de ingeniería digital: arquitectura web inmersiva y agentes de inteligencia artificial para negocios establecidos. México, Latinoamérica, Estados Unidos y Europa.",
+    "ogTitle": "VirtualArtistic — Boutique de ingeniería digital",
+    "ogDescription": "Arquitectura web inmersiva y agentes de inteligencia artificial para negocios que quieren escalar con orden."
+  },
+  "brandMark": "/ estudio",
+  "topMeta": "Ingeniería digital · Automatización con IA",
+  "langLabel": "Idioma",
+  "eyebrow": "Boutique de ingeniería digital",
+  "h1line1": "Estética que impone autoridad.",
+  "h1line2": "Sistemas que operan solos.",
+  "lede": "Arquitectura web inmersiva y agentes de inteligencia artificial, para negocios establecidos que aún operan con herramientas obsoletas.",
+  "ctaPrimary": "Solicitar análisis de proyecto",
+  "ctaSecondary": "Ver enfoque",
+  "scarcity": "Aceptamos 2 proyectos nuevos al mes.",
+  "scrollHint": "Desplázate",
+  "scope": "México · Latinoamérica · Estados Unidos · Europa",
+  "marquee": "INGENIERÍA DIGITAL · AUTOMATIZACIÓN CON IA · ARQUITECTURA WEB · GROWTH PARTNER · ",
+  "suggest": {
+    "text": "This site is available in English.",
+    "cta": "View in English",
+    "close": "Cerrar aviso"
+  },
+  "after": {
+    "title": "Menos superficie. Más estructura.",
+    "cells": [
+      { "h": "01 — Estructura", "p": "Primero definimos cómo va a funcionar todo y luego cómo se ve. Cada decisión tiene una razón clara detrás." },
+      { "h": "02 — Velocidad", "p": "Tu sitio abre rápido y funciona sin trabas desde el primer día. Que sea veloz no es un extra: es la base." },
+      { "h": "03 — Durabilidad", "p": "Hacemos cosas pensadas para durar, fáciles de mantener y de hacer crecer con el tiempo." }
+    ]
+  }
+}

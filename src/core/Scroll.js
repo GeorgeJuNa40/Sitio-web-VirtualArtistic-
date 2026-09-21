@@ -4,18 +4,26 @@ import { gsap } from 'gsap';
 /**
  * Smooth scroll (Lenis) + hero scroll progress + the staggered fade-out.
  *
- * uScrollProgress goes 0 -> 1 as the hero header leaves the viewport. The
- * text fades on a stagger — eyebrow/top first, CTA last — so the whole exit
- * reads as one choreography with the core's disintegration, not as independent
- * layers switching off.
+ * progress goes 0 -> 1 as the pinned hero scrolls through its range (it also
+ * scrubs the frame sequence). The text fades on a stagger — top/eyebrow first,
+ * CTA block last — so the whole exit reads as one choreography with the logo
+ * animation, not as independent layers switching off.
  */
 export class Scroll {
   constructor({ onProgress } = {}) {
     this.onProgress = onProgress || (() => {});
     this.progress = 0;
+    // Signed scroll velocity (Lenis) — read by the marquee to modulate its
+    // speed and direction. Positive = scrolling down.
+    this.velocity = 0;
+    // The scroll-driven text fade stays off until the intro reveal finishes,
+    // so the two animations never fight over the same properties.
+    this.fadeEnabled = false;
     this.hero = document.getElementById('hero');
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // Reduced motion: keep the text fully legible — never fade it out on scroll.
+    this.reduced = reduced;
 
     this.lenis = new Lenis({
       duration: 1.1,
@@ -47,24 +55,34 @@ export class Scroll {
 
   _update() {
     if (!this.hero) return;
-    const h = this.hero.offsetHeight || window.innerHeight;
-    // 0 at top of hero, 1 once scrolled one hero-height down.
-    const p = Math.min(Math.max(window.scrollY / h, 0), 1);
+    // Progress over the pinned hero's full scroll range (it is taller than the
+    // viewport), so 0 = top and 1 = the moment the sticky panel releases. This
+    // is what scrubs the animation frame sequence.
+    const range = this.hero.offsetHeight - window.innerHeight || window.innerHeight;
+    const p = Math.min(Math.max(window.scrollY / range, 0), 1);
     this.progress = p;
+    this.velocity = this.lenis.velocity || 0;
     this.onProgress(p);
     this._applyFade(p);
   }
 
+  enableFade() {
+    this.fadeEnabled = true;
+    this._update();
+  }
+
   _applyFade(p) {
+    if (!this.fadeEnabled || this.reduced) return;
     const n = this.fadeEls.length;
     if (!n) return;
-    // Staggered windows: earlier elements finish fading before later ones start.
-    // Total travel compressed into the first ~85% of the hero exit.
+    // Text clears early (first ~30% of the scrub) so it is gone before the
+    // animation's climax; staggered eyebrow-first, CTA-last.
     this.fadeEls.forEach((el, i) => {
-      const start = (i / n) * 0.55;
-      const end = start + 0.4;
+      const start = (i / n) * 0.12;
+      const end = start + 0.16;
       const local = gsap.utils.clamp(0, 1, (p - start) / (end - start));
-      const eased = gsap.parseEase('power2.out')(local);
+      // Master hero easing — single curve across entrance and exit.
+      const eased = gsap.parseEase('power3.out')(local);
       el.style.opacity = String(1 - eased);
       el.style.transform = `translateY(${eased * -22}px)`;
     });
