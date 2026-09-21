@@ -13,6 +13,9 @@ export class Scroll {
   constructor({ onProgress } = {}) {
     this.onProgress = onProgress || (() => {});
     this.progress = 0;
+    // Signed scroll velocity (Lenis) — read by the marquee to modulate its
+    // speed and direction. Positive = scrolling down.
+    this.velocity = 0;
     // The scroll-driven text fade stays off until the intro reveal finishes,
     // so the two animations never fight over the same properties.
     this.fadeEnabled = false;
@@ -58,6 +61,7 @@ export class Scroll {
     const range = this.hero.offsetHeight - window.innerHeight || window.innerHeight;
     const p = Math.min(Math.max(window.scrollY / range, 0), 1);
     this.progress = p;
+    this.velocity = this.lenis.velocity || 0;
     this.onProgress(p);
     this._applyFade(p);
   }
@@ -77,7 +81,8 @@ export class Scroll {
       const start = (i / n) * 0.12;
       const end = start + 0.16;
       const local = gsap.utils.clamp(0, 1, (p - start) / (end - start));
-      const eased = gsap.parseEase('power2.out')(local);
+      // Master hero easing — single curve across entrance and exit.
+      const eased = gsap.parseEase('power3.out')(local);
       el.style.opacity = String(1 - eased);
       el.style.transform = `translateY(${eased * -22}px)`;
     });

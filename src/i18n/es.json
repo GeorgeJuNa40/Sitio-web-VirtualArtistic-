@@ -1,0 +1,40 @@
+{
+  "lang": "es",
+  "dir": "ltr",
+  "ogLocale": "es_MX",
+  "canonical": "/",
+  "route": "/",
+  "other": { "code": "en", "route": "/en/" },
+  "meta": {
+    "title": "VirtualArtistic — Boutique de ingeniería digital",
+    "description": "Boutique de ingeniería digital: arquitectura web inmersiva y agentes de inteligencia artificial para negocios establecidos. México, Latinoamérica, Estados Unidos y Europa.",
+    "ogTitle": "VirtualArtistic — Boutique de ingeniería digital",
+    "ogDescription": "Arquitectura web inmersiva y agentes de inteligencia artificial para negocios que quieren escalar con orden."
+  },
+  "brandMark": "/ estudio",
+  "topMeta": "Ingeniería digital · Automatización con IA",
+  "langLabel": "Idioma",
+  "eyebrow": "Boutique de ingeniería digital",
+  "h1line1": "Estética que impone autoridad.",
+  "h1line2": "Sistemas que operan solos.",
+  "lede": "Arquitectura web inmersiva y agentes de inteligencia artificial, para negocios establecidos que aún operan con herramientas obsoletas.",
+  "ctaPrimary": "Solicitar análisis de proyecto",
+  "ctaSecondary": "Ver enfoque",
+  "scarcity": "Aceptamos 2 proyectos nuevos por trimestre.",
+  "scrollHint": "Desplázate",
+  "scope": "México · Latinoamérica · Estados Unidos · Europa",
+  "marquee": "INGENIERÍA DIGITAL · AUTOMATIZACIÓN CON IA · ARQUITECTURA WEB · GROWTH PARTNER · ",
+  "suggest": {
+    "text": "This site is available in English.",
+    "cta": "View in English",
+    "close": "Cerrar aviso"
+  },
+  "after": {
+    "title": "Menos superficie. Más estructura.",
+    "cells": [
+      { "h": "01 — Arquitectura", "p": "Definimos la estructura antes que la forma. Cada decisión técnica responde a una intención editorial." },
+      { "h": "02 — Ingeniería", "p": "Rendimiento como principio, no como ajuste final. 60 FPS y LCP bajo control desde el primer commit." },
+      { "h": "03 — Permanencia", "p": "Construimos sistemas que envejecen bien: mantenibles, sobrios y legibles para quien venga después." }
+    ]
+  }
+}

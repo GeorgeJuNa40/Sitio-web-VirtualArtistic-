@@ -1,0 +1,589 @@
+:root {
+  /* Exactly the animation's white (#fdfdfd) so the canvas blends into the
+     page seamlessly — no visible "box" around the frames. */
+  --bg: #fdfdfd;
+  --ink: #17160f;
+  --ink-dim: #565349;
+  --ink-faint: #8f8b80;
+  --gold: #b8860b;
+  --line: rgba(23, 22, 15, 0.16);
+  --space: clamp(1.25rem, 4vw, 3rem);
+  /* Body: geometric, legible. Fallback stack chosen to match Manrope's
+     metrics so the swap causes no layout shift (CLS = 0). */
+  --font: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    Helvetica, Arial, sans-serif;
+  /* Headline: editorial authority. Same fallback family for a clean swap. */
+  --font-display: 'Space Grotesk', 'Segoe UI', system-ui, -apple-system,
+    sans-serif;
+  /* Utility mono for labels/marquee/scope — system stack, zero network cost so
+     it never threatens the LCP. */
+  --mono: ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas,
+    'Liberation Mono', monospace;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Make the `hidden` attribute authoritative even on elements that set their
+   own display (e.g. the language banner is display:flex until JS reveals it). */
+[hidden] {
+  display: none !important;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font);
+  font-weight: 400;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+/* Native cursor hidden only while the custom cursor is live (desktop, fine
+   pointer, motion allowed). JS adds this class; touch/reduced-motion never do. */
+.has-cursor,
+.has-cursor a,
+.has-cursor button,
+.has-cursor [data-cursor] {
+  cursor: none;
+}
+
+/* Tall section that gives the scroll something to scrub through. The
+   extra length makes the scrub slow and cinematic. */
+.hero {
+  position: relative;
+  height: 360vh;
+}
+
+/* White halo so dark text stays legible when the logo's colours pass
+   behind it; invisible over the white stage. */
+.brand,
+.meta,
+.eyebrow,
+.hero__title,
+.hero__lede,
+.scarcity,
+.scope,
+.scroll-hint {
+  text-shadow:
+    0 0 14px rgba(253, 253, 253, 0.98),
+    0 0 6px rgba(253, 253, 253, 0.98),
+    0 1px 2px rgba(253, 253, 253, 0.95);
+}
+
+/* Pinned viewport: the animation + text stay put while the page scrolls,
+   and the scroll position drives which frame is drawn. */
+.hero__sticky {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: hidden;
+}
+
+.hero__canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 1s ease;
+  pointer-events: none;
+}
+
+/* Light scrim: keeps the dark headline legible over busy frames without
+   hiding the white animation. */
+.hero__scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    to right,
+    rgba(253, 253, 253, 0.92) 0%,
+    rgba(253, 253, 253, 0.55) 24%,
+    transparent 44%
+  );
+}
+
+/* ---- Surface atmosphere: grain + vignette. Static, GPU-composited, drawn
+   once. Both sit above the animation but below the text, no pointer-events. */
+.hero__grain {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 140px 140px;
+}
+
+.hero__vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 56%,
+    rgba(23, 22, 15, 0.06) 100%
+  );
+}
+
+.hero__content {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  padding: var(--space);
+  gap: var(--space);
+}
+
+.hero__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.hero__top-right {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.9rem, 2vw, 1.6rem);
+}
+
+.brand {
+  font-size: 0.82rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.brand__mark {
+  color: var(--ink-dim);
+  font-weight: 400;
+}
+
+.meta {
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+/* Language selector — text only, never flags; monospace, minimal. */
+.lang {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+}
+
+.lang__link {
+  color: var(--ink-faint);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.lang__link.is-active {
+  color: var(--ink);
+}
+
+.lang__link:hover {
+  color: var(--ink);
+}
+
+.lang__link:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+
+.lang__sep {
+  color: var(--ink-faint);
+}
+
+.hero__center {
+  align-self: center;
+  max-width: min(42ch, 92vw);
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.76rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: clamp(1.1rem, 2.4vw, 1.8rem);
+}
+
+.eyebrow::before {
+  content: '';
+  width: 1.6rem;
+  height: 2px;
+  background: var(--gold);
+  flex: none;
+}
+
+/* Both lines: identical size and weight. The parallelism is the message.
+   Each line is a mask (overflow hidden); its inner slides up on entrance. */
+.hero__title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.6rem, 4vw, 3rem);
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  text-wrap: balance;
+}
+
+.hero__title .line {
+  display: block;
+  overflow: hidden;
+}
+
+.hero__title .line__i {
+  display: block;
+}
+
+.hero__lede {
+  margin-top: clamp(1.4rem, 3vw, 2.2rem);
+  max-width: 42ch;
+  font-size: clamp(1rem, 1.4vw, 1.15rem);
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1.6;
+}
+
+.hero__bottom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.25rem;
+}
+
+.hero__bottom-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.cta-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.cta-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.5rem;
+}
+
+.scarcity {
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  color: var(--ink-faint);
+}
+
+/* International scope — quiet monospace, states reach without loud words. */
+.scope {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  color: var(--ink-faint);
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.9rem;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  color: #fff;
+  background: var(--ink);
+  padding: 0.85rem 1.6rem;
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  transition: background 0.4s ease, color 0.4s ease, border-color 0.4s ease;
+}
+
+.cta:hover {
+  background: var(--gold);
+  border-color: var(--gold);
+}
+
+.cta:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+
+.cta--ghost {
+  background: transparent;
+  border-color: transparent;
+  padding-left: 0.4rem;
+  padding-right: 0.4rem;
+  color: var(--ink-dim);
+}
+
+.cta--ghost:hover {
+  color: var(--ink);
+  background: transparent;
+  border-color: transparent;
+}
+
+.cta__arrow {
+  display: inline-block;
+  transition: transform 0.4s ease;
+}
+
+.cta:hover .cta__arrow {
+  transform: translateX(4px);
+}
+
+.scroll-hint {
+  font-size: 0.7rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.scroll-hint__line {
+  display: inline-block;
+  width: 42px;
+  height: 1px;
+  background: currentColor;
+  transform-origin: left center;
+  animation: hintline 2.6s ease-in-out infinite;
+}
+
+@keyframes hintline {
+  0%,
+  100% {
+    transform: scaleX(0.4);
+    opacity: 0.4;
+  }
+  50% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+/* ---- Scroll-linked marquee: one strip, revealed in the hero's exit. It is
+   textural (aria-hidden). JS moves it with translate3d only. */
+.hero__marquee {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: clamp(6rem, 16vh, 11rem);
+  z-index: 2;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: 0.7rem 0;
+}
+
+.marquee__track {
+  display: inline-flex;
+  white-space: nowrap;
+  will-change: transform;
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.28em;
+  font-size: 0.72rem;
+  color: var(--ink-faint);
+}
+
+.marquee__track span {
+  display: inline-block;
+  padding-right: 0;
+}
+
+/* ---- Language suggestion banner (discreet, never forced). */
+.lang-suggest {
+  position: fixed;
+  z-index: 40;
+  right: var(--space);
+  bottom: var(--space);
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  max-width: min(92vw, 24rem);
+  background: rgba(253, 253, 253, 0.9);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 0.7rem 0.9rem;
+  font-size: 0.82rem;
+  color: var(--ink-dim);
+  box-shadow: 0 8px 28px rgba(23, 22, 15, 0.08);
+}
+
+.lang-suggest a {
+  color: var(--ink);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--gold);
+}
+
+.lang-suggest a:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+
+.lang-suggest__close {
+  margin-left: auto;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  color: var(--ink-faint);
+  font-size: 1.2rem;
+  line-height: 1;
+  padding: 0 0.2rem;
+}
+
+.lang-suggest__close:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.after {
+  position: relative;
+  z-index: 2;
+  min-height: 100svh;
+  padding: clamp(3rem, 12vh, 9rem) var(--space);
+  display: grid;
+  align-content: center;
+  gap: 2rem;
+  border-top: 1px solid var(--line);
+  background: var(--bg);
+}
+
+.after__title {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  letter-spacing: -0.02em;
+  max-width: 20ch;
+}
+
+.after__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: clamp(1.5rem, 4vw, 3rem);
+  max-width: 1100px;
+}
+
+.after__cell h3 {
+  font-size: 0.78rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-weight: 600;
+  margin-bottom: 0.8rem;
+}
+
+.after__cell p {
+  color: var(--ink-dim);
+  font-size: 0.98rem;
+  line-height: 1.6;
+}
+
+/* ---- Mobile ------------------------------------------------------------- */
+@media (max-width: 760px), (orientation: portrait) and (max-width: 900px) {
+  .hero__content {
+    padding: 1.15rem;
+    gap: 1rem;
+  }
+  .meta {
+    display: none;
+  }
+  .brand {
+    font-size: 0.78rem;
+  }
+  .hero__center {
+    align-self: start;
+    margin-top: clamp(3vh, 6vh, 8vh);
+    max-width: 100%;
+  }
+  .hero__title {
+    font-size: clamp(1.7rem, 8.5vw, 2.6rem);
+  }
+  .hero__lede {
+    max-width: 34ch;
+    font-size: 0.98rem;
+  }
+  .hero__bottom {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  .scroll-hint {
+    display: none;
+  }
+  .cta-group {
+    width: 100%;
+    gap: 0.75rem 1.25rem;
+  }
+  .hero__scrim {
+    display: none;
+  }
+  .hero__marquee {
+    bottom: clamp(3.5rem, 12vh, 7rem);
+    padding: 0.55rem 0;
+  }
+  .marquee__track {
+    font-size: 0.64rem;
+    letter-spacing: 0.22em;
+  }
+  .after {
+    padding: clamp(2.5rem, 8vh, 5rem) 1.15rem;
+  }
+  .after__grid {
+    grid-template-columns: 1fr;
+    gap: 1.75rem;
+  }
+  .after__title {
+    font-size: clamp(1.7rem, 8vw, 2.4rem);
+  }
+}
+
+/* ---- Reduced motion: calm, fully legible, no scrub/cursor/marquee/grain. */
+@media (prefers-reduced-motion: reduce) {
+  .scroll-hint__line {
+    animation: none;
+  }
+  .hero__canvas {
+    transition: none;
+  }
+  .hero__grain,
+  .hero__marquee {
+    display: none;
+  }
+}

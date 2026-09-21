@@ -1,0 +1,40 @@
+{
+  "lang": "en",
+  "dir": "ltr",
+  "ogLocale": "en_US",
+  "canonical": "/en/",
+  "route": "/en/",
+  "other": { "code": "es", "route": "/" },
+  "meta": {
+    "title": "VirtualArtistic — Digital engineering boutique",
+    "description": "Digital engineering boutique: immersive web architecture and AI agents for established businesses. Mexico, Latin America, the United States and Europe.",
+    "ogTitle": "VirtualArtistic — Digital engineering boutique",
+    "ogDescription": "Immersive web architecture and AI agents for businesses that want to scale with order."
+  },
+  "brandMark": "/ studio",
+  "topMeta": "Digital engineering · AI automation",
+  "langLabel": "Language",
+  "eyebrow": "Digital engineering boutique",
+  "h1line1": "Design that commands authority.",
+  "h1line2": "Systems that run themselves.",
+  "lede": "Immersive web architecture and AI agents, built for established businesses still running on outdated tools.",
+  "ctaPrimary": "Request a project review",
+  "ctaSecondary": "Our approach",
+  "scarcity": "We take on two new projects per quarter.",
+  "scrollHint": "Scroll",
+  "scope": "Mexico · Latin America · United States · Europe",
+  "marquee": "DIGITAL ENGINEERING · AI AUTOMATION · WEB ARCHITECTURE · GROWTH PARTNER · ",
+  "suggest": {
+    "text": "Este sitio está disponible en español.",
+    "cta": "Ver en español",
+    "close": "Close notice"
+  },
+  "after": {
+    "title": "Less surface. More structure.",
+    "cells": [
+      { "h": "01 — Architecture", "p": "We define structure before form. Every technical decision answers an editorial intent." },
+      { "h": "02 — Engineering", "p": "Performance as a principle, not a final adjustment. 60 FPS and LCP under control from the first commit." },
+      { "h": "03 — Permanence", "p": "We build systems that age well: maintainable, restrained and legible for whoever comes next." }
+    ]
+  }
+}
