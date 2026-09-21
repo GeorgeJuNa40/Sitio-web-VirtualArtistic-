@@ -125,7 +125,10 @@ ${criticalCss}
                       <span data-i18n="ctaPrimary">${esc(t.ctaPrimary)}</span>
                       <span class="cta__arrow" aria-hidden="true">→</span>
                     </a>
-                    <a class="cta cta--ghost" href="#enfoque" data-i18n="ctaSecondary">${esc(t.ctaSecondary)}</a>
+                    <a class="cta cta--ghost" href="#enfoque" aria-label="${esc(t.ctaSecondary)}">
+                      <span class="cta--ghost__label" data-i18n="ctaSecondary">${esc(t.ctaSecondary)}</span>
+                      <span class="cta__down" aria-hidden="true">↓</span>
+                    </a>
                   </div>
                   <p class="scarcity" data-i18n="scarcity">${esc(t.scarcity)}</p>
                 </div>

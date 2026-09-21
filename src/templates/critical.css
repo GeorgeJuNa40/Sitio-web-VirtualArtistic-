@@ -265,6 +265,9 @@ body {
   display: block;
 }
 
+/* Translucent plate behind the lede: a soft frosted rectangle so the text reads
+   cleanly over the busy frames. It fades out with the lede on scroll (the lede
+   is a fade element), so it never lingers as an empty box. */
 .hero__lede {
   margin-top: clamp(1.4rem, 3vw, 2.2rem);
   max-width: 42ch;
@@ -272,6 +275,12 @@ body {
   font-weight: 500;
   color: var(--ink);
   line-height: 1.6;
+  padding: clamp(0.85rem, 2vw, 1.15rem) clamp(1rem, 2.5vw, 1.4rem);
+  background: rgba(253, 253, 253, 0.74);
+  border: 1px solid rgba(253, 253, 253, 0.85);
+  border-radius: 14px;
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
 }
 
 .hero__bottom {
@@ -342,18 +351,35 @@ body {
   outline-offset: 3px;
 }
 
+/* Secondary action reads clearly as a link-button that scrolls to "enfoque":
+   bold, underlined label + a down arrow that hints the jump. */
 .cta--ghost {
   background: transparent;
   border-color: transparent;
   padding-left: 0.4rem;
   padding-right: 0.4rem;
-  color: var(--ink-dim);
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.cta--ghost__label {
+  border-bottom: 2px solid var(--gold);
+  padding-bottom: 2px;
+}
+
+.cta__down {
+  display: inline-block;
+  transition: transform 0.3s ease;
 }
 
 .cta--ghost:hover {
-  color: var(--ink);
+  color: var(--gold);
   background: transparent;
   border-color: transparent;
+}
+
+.cta--ghost:hover .cta__down {
+  transform: translateY(3px);
 }
 
 .cta__arrow {

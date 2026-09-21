@@ -32,9 +32,9 @@
   "after": {
     "title": "Menos superficie. Más estructura.",
     "cells": [
-      { "h": "01 — Arquitectura", "p": "Definimos la estructura antes que la forma. Cada decisión técnica responde a una intención editorial." },
-      { "h": "02 — Ingeniería", "p": "Rendimiento como principio, no como ajuste final. 60 FPS y LCP bajo control desde el primer commit." },
-      { "h": "03 — Permanencia", "p": "Construimos sistemas que envejecen bien: mantenibles, sobrios y legibles para quien venga después." }
+      { "h": "01 — Estructura", "p": "Primero definimos cómo va a funcionar todo y luego cómo se ve. Cada decisión tiene una razón clara detrás." },
+      { "h": "02 — Velocidad", "p": "Tu sitio abre rápido y funciona sin trabas desde el primer día. Que sea veloz no es un extra: es la base." },
+      { "h": "03 — Durabilidad", "p": "Hacemos cosas pensadas para durar, fáciles de mantener y de hacer crecer con el tiempo." }
     ]
   }
 }

@@ -299,6 +299,9 @@
         display: block;
       }
       
+      /* Translucent plate behind the lede: a soft frosted rectangle so the text reads
+         cleanly over the busy frames. It fades out with the lede on scroll (the lede
+         is a fade element), so it never lingers as an empty box. */
       .hero__lede {
         margin-top: clamp(1.4rem, 3vw, 2.2rem);
         max-width: 42ch;
@@ -306,6 +309,12 @@
         font-weight: 500;
         color: var(--ink);
         line-height: 1.6;
+        padding: clamp(0.85rem, 2vw, 1.15rem) clamp(1rem, 2.5vw, 1.4rem);
+        background: rgba(253, 253, 253, 0.74);
+        border: 1px solid rgba(253, 253, 253, 0.85);
+        border-radius: 14px;
+        -webkit-backdrop-filter: blur(3px);
+        backdrop-filter: blur(3px);
       }
       
       .hero__bottom {
@@ -376,18 +385,35 @@
         outline-offset: 3px;
       }
       
+      /* Secondary action reads clearly as a link-button that scrolls to "enfoque":
+         bold, underlined label + a down arrow that hints the jump. */
       .cta--ghost {
         background: transparent;
         border-color: transparent;
         padding-left: 0.4rem;
         padding-right: 0.4rem;
-        color: var(--ink-dim);
+        color: var(--ink);
+        font-weight: 600;
+      }
+      
+      .cta--ghost__label {
+        border-bottom: 2px solid var(--gold);
+        padding-bottom: 2px;
+      }
+      
+      .cta__down {
+        display: inline-block;
+        transition: transform 0.3s ease;
       }
       
       .cta--ghost:hover {
-        color: var(--ink);
+        color: var(--gold);
         background: transparent;
         border-color: transparent;
+      }
+      
+      .cta--ghost:hover .cta__down {
+        transform: translateY(3px);
       }
       
       .cta__arrow {
@@ -733,7 +759,10 @@
                       <span data-i18n="ctaPrimary">Request a project review</span>
                       <span class="cta__arrow" aria-hidden="true">→</span>
                     </a>
-                    <a class="cta cta--ghost" href="#enfoque" data-i18n="ctaSecondary">Our approach</a>
+                    <a class="cta cta--ghost" href="#enfoque" aria-label="Our approach">
+                      <span class="cta--ghost__label" data-i18n="ctaSecondary">Our approach</span>
+                      <span class="cta__down" aria-hidden="true">↓</span>
+                    </a>
                   </div>
                   <p class="scarcity" data-i18n="scarcity">We take on two new projects each month.</p>
                 </div>
@@ -752,16 +781,16 @@
         <h2 class="after__title" data-i18n="after.title">Less surface. More structure.</h2>
         <div class="after__grid">
           <div class="after__cell">
-            <h3 data-i18n="after.cells.0.h">01 — Architecture</h3>
-            <p data-i18n="after.cells.0.p">We define structure before form. Every technical decision answers an editorial intent.</p>
+            <h3 data-i18n="after.cells.0.h">01 — Structure</h3>
+            <p data-i18n="after.cells.0.p">First we define how everything works, then how it looks. Every choice has a clear reason behind it.</p>
           </div>
           <div class="after__cell">
-            <h3 data-i18n="after.cells.1.h">02 — Engineering</h3>
-            <p data-i18n="after.cells.1.p">Performance as a principle, not a final adjustment. 60 FPS and LCP under control from the first commit.</p>
+            <h3 data-i18n="after.cells.1.h">02 — Speed</h3>
+            <p data-i18n="after.cells.1.p">Your site opens fast and runs smoothly from day one. Being fast isn't a bonus — it's the base.</p>
           </div>
           <div class="after__cell">
-            <h3 data-i18n="after.cells.2.h">03 — Permanence</h3>
-            <p data-i18n="after.cells.2.p">We build systems that age well: maintainable, restrained and legible for whoever comes next.</p>
+            <h3 data-i18n="after.cells.2.h">03 — Durability</h3>
+            <p data-i18n="after.cells.2.p">We build things made to last: easy to maintain and to grow over time.</p>
           </div>
         </div>
       </section>

@@ -32,9 +32,9 @@
   "after": {
     "title": "Less surface. More structure.",
     "cells": [
-      { "h": "01 — Architecture", "p": "We define structure before form. Every technical decision answers an editorial intent." },
-      { "h": "02 — Engineering", "p": "Performance as a principle, not a final adjustment. 60 FPS and LCP under control from the first commit." },
-      { "h": "03 — Permanence", "p": "We build systems that age well: maintainable, restrained and legible for whoever comes next." }
+      { "h": "01 — Structure", "p": "First we define how everything works, then how it looks. Every choice has a clear reason behind it." },
+      { "h": "02 — Speed", "p": "Your site opens fast and runs smoothly from day one. Being fast isn't a bonus — it's the base." },
+      { "h": "03 — Durability", "p": "We build things made to last: easy to maintain and to grow over time." }
     ]
   }
 }
