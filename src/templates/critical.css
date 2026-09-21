@@ -391,20 +391,27 @@ body {
   }
 }
 
-/* ---- Scroll-linked marquee: one strip, revealed in the hero's exit. It is
-   textural (aria-hidden). JS moves it with translate3d only. */
+/* ---- Scroll-linked marquee: a ticker pinned to the bottom edge, revealed in
+   the hero's exit. A soft white backing (fading up to transparent) keeps it
+   legible over the busy frames without boxing the logo's centre. Textural
+   (aria-hidden); JS moves it with translate3d only. */
 .hero__marquee {
   position: absolute;
   left: 0;
   right: 0;
-  bottom: clamp(6rem, 16vh, 11rem);
-  z-index: 2;
+  bottom: 0;
+  z-index: 3;
   overflow: hidden;
   opacity: 0;
   pointer-events: none;
+  padding: 0.9rem 0;
   border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
-  padding: 0.7rem 0;
+  background: linear-gradient(
+    to top,
+    rgba(253, 253, 253, 0.95) 0%,
+    rgba(253, 253, 253, 0.88) 65%,
+    rgba(253, 253, 253, 0) 100%
+  );
 }
 
 .marquee__track {
@@ -413,9 +420,9 @@ body {
   will-change: transform;
   font-family: var(--mono);
   text-transform: uppercase;
-  letter-spacing: 0.28em;
-  font-size: 0.72rem;
-  color: var(--ink-faint);
+  letter-spacing: 0.3em;
+  font-size: 0.8rem;
+  color: var(--ink-dim);
 }
 
 .marquee__track span {
@@ -538,6 +545,15 @@ body {
   .hero__lede {
     max-width: 34ch;
     font-size: 0.98rem;
+    font-weight: 600;
+  }
+  /* Stronger halo over the busy frames where there is no side wash. */
+  .hero__title,
+  .hero__lede {
+    text-shadow:
+      0 0 20px rgba(253, 253, 253, 1),
+      0 0 10px rgba(253, 253, 253, 1),
+      0 1px 3px rgba(253, 253, 253, 0.98);
   }
   .hero__bottom {
     flex-direction: column;
@@ -551,16 +567,23 @@ body {
     width: 100%;
     gap: 0.75rem 1.25rem;
   }
+  /* Not a box: a soft top veil that fully dissolves by ~60%, so the headline
+     and lede stay legible while the logo's centre keeps its full colour. */
   .hero__scrim {
-    display: none;
+    display: block;
+    background: linear-gradient(
+      to bottom,
+      rgba(253, 253, 253, 0.92) 0%,
+      rgba(253, 253, 253, 0.5) 34%,
+      rgba(253, 253, 253, 0) 62%
+    );
   }
   .hero__marquee {
-    bottom: clamp(3.5rem, 12vh, 7rem);
-    padding: 0.55rem 0;
+    padding: 0.6rem 0;
   }
   .marquee__track {
-    font-size: 0.64rem;
-    letter-spacing: 0.22em;
+    font-size: 0.68rem;
+    letter-spacing: 0.24em;
   }
   .after {
     padding: clamp(2.5rem, 8vh, 5rem) 1.15rem;
